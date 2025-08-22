@@ -27,7 +27,7 @@ void Game::Initialize()
 	// Code that needs to execute (once) at the start of the game, before the game window is created
 
 	AbstractGame::Initialize();
-	GAME_ENGINE->SetTitle(_T("Game Engine version 8_01"));	
+	GAME_ENGINE->SetTitle(_T("ResearchProjectGPP"));	
 	
 	GAME_ENGINE->SetWidth(1024);
 	GAME_ENGINE->SetHeight(768);

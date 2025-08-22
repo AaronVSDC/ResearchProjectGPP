@@ -7,6 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Game.h"
+#include "JumpPointSearch.h"
 
 //-----------------------------------------------------------------
 // Game Member Functions																				
@@ -39,12 +40,48 @@ void Game::Initialize()
 
 void Game::Start()
 {
-	mGrid.assign(GRID_COLS * GRID_ROWS, CellType::Empty); 
+        mGrid.assign(GRID_COLS * GRID_ROWS, CellType::Empty);
+
+        // create buttons for brush selection and actions
+        mBtnStart = new Button(L"Start");
+        mBtnStart->SetBounds(650, 50, 730, 80);
+        mBtnStart->AddActionListener(this);
+        mBtnStart->Show();
+
+        mBtnDest = new Button(L"Destination");
+        mBtnDest->SetBounds(650, 90, 730, 120);
+        mBtnDest->AddActionListener(this);
+        mBtnDest->Show();
+
+        mBtnObstacle = new Button(L"Obstacle");
+        mBtnObstacle->SetBounds(650, 130, 730, 160);
+        mBtnObstacle->AddActionListener(this);
+        mBtnObstacle->Show();
+
+        mBtnEmpty = new Button(L"Empty");
+        mBtnEmpty->SetBounds(650, 170, 730, 200);
+        mBtnEmpty->AddActionListener(this);
+        mBtnEmpty->Show();
+
+        mBtnSolve = new Button(L"Solve");
+        mBtnSolve->SetBounds(650, 210, 730, 240);
+        mBtnSolve->AddActionListener(this);
+        mBtnSolve->Show();
+
+        mBtnStep = new Button(L"Step");
+        mBtnStep->SetBounds(650, 250, 730, 280);
+        mBtnStep->AddActionListener(this);
+        mBtnStep->Show();
 }
 
 void Game::End()
 {
-	// Insert code that needs to execute when the game ends
+        delete mBtnStart;
+        delete mBtnDest;
+        delete mBtnObstacle;
+        delete mBtnEmpty;
+        delete mBtnSolve;
+        delete mBtnStep;
 }
 
 void Game::Paint(RECT rect) const
@@ -59,23 +96,27 @@ void Game::Paint(RECT rect) const
 			int right = left + CELL_SIZE;
 			int bottom = top + CELL_SIZE;
 			 
-			switch (mGrid[row * GRID_COLS + col])
-			{
-			case CellType::Start:
-				GAME_ENGINE->SetColor(RGB(0, 255, 0));
-				GAME_ENGINE->FillRect(left, top, right, bottom);
-				break;
-			case CellType::Destination:
-				GAME_ENGINE->SetColor(RGB(255, 0, 0));
-				GAME_ENGINE->FillRect(left, top, right, bottom);
-				break;
-			case CellType::Obstacle:
-				GAME_ENGINE->SetColor(RGB(0, 0, 0));
-				GAME_ENGINE->FillRect(left, top, right, bottom);
-				break;
-			default:
-				break;
-			}
+                        switch (mGrid[row * GRID_COLS + col])
+                        {
+                        case CellType::Start:
+                                GAME_ENGINE->SetColor(RGB(0, 255, 0));
+                                GAME_ENGINE->FillRect(left, top, right, bottom);
+                                break;
+                        case CellType::Destination:
+                                GAME_ENGINE->SetColor(RGB(255, 0, 0));
+                                GAME_ENGINE->FillRect(left, top, right, bottom);
+                                break;
+                        case CellType::Obstacle:
+                                GAME_ENGINE->SetColor(RGB(0, 0, 0));
+                                GAME_ENGINE->FillRect(left, top, right, bottom);
+                                break;
+                        case CellType::Path:
+                                GAME_ENGINE->SetColor(RGB(0, 0, 255));
+                                GAME_ENGINE->FillRect(left, top, right, bottom);
+                                break;
+                        default:
+                                break;
+                        }
 
 			GAME_ENGINE->SetColor(RGB(200, 200, 200));
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
@@ -155,35 +196,82 @@ void Game::CheckKeyboard()
 }
 
 void Game::KeyPressed(TCHAR key)
-{	
-	switch (key)
-	{
-	case _T('S'):
-		mCurrentBrush = CellType::Start;
-		m_BrushType = L"BrushType: Start"; 
-		break;
-	case _T('D'):
-		mCurrentBrush = CellType::Destination;
-		m_BrushType = L"BrushType: Destination";
-
-		break;
-	case _T('O'):
-		mCurrentBrush = CellType::Obstacle;
-		m_BrushType = L"BrushType: Obstacle";
-
-		break;
-	case _T('E'):
-		mCurrentBrush = CellType::Empty;
-		m_BrushType = L"BrushType: Empty";
-		break;
-	default:
-		break;
-	}
+{
+        // Brush selection handled through buttons
 }
 
 void Game::CallAction(Caller* callerPtr)
 {
-	// Insert the code that needs to execute when a Caller (= Button, TextBox, Timer, Audio) executes an action
+        if (callerPtr == mBtnStart)
+        {
+                mCurrentBrush = CellType::Start;
+                m_BrushType = L"BrushType: Start";
+        }
+        else if (callerPtr == mBtnDest)
+        {
+                mCurrentBrush = CellType::Destination;
+                m_BrushType = L"BrushType: Destination";
+        }
+        else if (callerPtr == mBtnObstacle)
+        {
+                mCurrentBrush = CellType::Obstacle;
+                m_BrushType = L"BrushType: Obstacle";
+        }
+        else if (callerPtr == mBtnEmpty)
+        {
+                mCurrentBrush = CellType::Empty;
+                m_BrushType = L"BrushType: Empty";
+        }
+        else if (callerPtr == mBtnSolve)
+        {
+                ClearPath();
+                if (mStartCell.x != -1 && mDestCell.x != -1)
+                {
+                        mJps = std::make_unique<JumpPointSearch>(mGrid, GRID_COLS, GRID_ROWS);
+                        mJps->SetStart(mStartCell);
+                        mJps->SetGoal(mDestCell);
+                        auto path = mJps->Solve();
+                        for (const auto& p : path)
+                        {
+                                int idx = p.y * GRID_COLS + p.x;
+                                if (mGrid[idx] == CellType::Empty)
+                                        mGrid[idx] = CellType::Path;
+                        }
+                        mJps.reset();
+                }
+        }
+        else if (callerPtr == mBtnStep)
+        {
+                if (!mJps)
+                {
+                        ClearPath();
+                        if (mStartCell.x == -1 || mDestCell.x == -1) return;
+                        mJps = std::make_unique<JumpPointSearch>(mGrid, GRID_COLS, GRID_ROWS);
+                        mJps->SetStart(mStartCell);
+                        mJps->SetGoal(mDestCell);
+                }
+
+                if (mJps && mJps->Step())
+                {
+                        auto path = mJps->GetPath();
+                        for (const auto& p : path)
+                        {
+                                int idx = p.y * GRID_COLS + p.x;
+                                if (mGrid[idx] == CellType::Empty)
+                                        mGrid[idx] = CellType::Path;
+                        }
+                        mJps.reset();
+                }
+        }
+}
+
+void Game::ClearPath()
+{
+        for (auto& cell : mGrid)
+        {
+                if (cell == CellType::Path)
+                        cell = CellType::Empty;
+        }
 }
 
 

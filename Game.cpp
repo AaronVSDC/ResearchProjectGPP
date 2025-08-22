@@ -33,17 +33,13 @@ void Game::Initialize()
 	GAME_ENGINE->SetHeight(768);
     GAME_ENGINE->SetFrameRate(50);
 
-	// Set the keys that the game needs to listen to
-	//tstringstream buffer;
-	//buffer << _T("KLMO");
-	//buffer << (char) VK_LEFT;
-	//buffer << (char) VK_RIGHT;
-	//GAME_ENGINE->SetKeyList(buffer.str());
+	GAME_ENGINE->SetKeyList(_T("SDOE"));
+
 }
 
 void Game::Start()
 {
-	// Insert code that needs to execute (once) at the start of the game, after the game window is created
+	mGrid.assign(GRID_COLS * GRID_ROWS, CellType::Empty); 
 }
 
 void Game::End()
@@ -53,30 +49,76 @@ void Game::End()
 
 void Game::Paint(RECT rect) const
 {
-	// Insert paint code 
+	GAME_ENGINE->FillWindowRect(RGB(255, 255, 255)); 
+	for (int row = 0; row < GRID_ROWS; ++row)
+	{
+		for (int col = 0; col < GRID_COLS; ++col)
+		{
+			int left = col * CELL_SIZE;
+			int top = row * CELL_SIZE;
+			int right = left + CELL_SIZE;
+			int bottom = top + CELL_SIZE;
+			 
+			switch (mGrid[row * GRID_COLS + col])
+			{
+			case CellType::Start:
+				GAME_ENGINE->SetColor(RGB(0, 255, 0));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+				break;
+			case CellType::Destination:
+				GAME_ENGINE->SetColor(RGB(255, 0, 0));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+				break;
+			case CellType::Obstacle:
+				GAME_ENGINE->SetColor(RGB(0, 0, 0));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+				break;
+			default:
+				break;
+			}
+
+			GAME_ENGINE->SetColor(RGB(200, 200, 200));
+			GAME_ENGINE->DrawRect(left, top, right, bottom);
+		}
+	}
+
+	GAME_ENGINE->DrawString(m_BrushType, GAME_ENGINE->GetWidth() / 2, GAME_ENGINE->GetHeight() - 20); 
+
 }
 
 void Game::Tick()
 {
-	// Insert non-paint code that needs to execute each tick 
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
 {	
-	// Insert code for a mouse button action
-
-	/* Example:
-	if (isLeft == true && isDown == true) // is it a left mouse click?
+	if (isLeft && isDown)
 	{
-		if ( x > 261 && x < 261 + 117 ) // check if click lies within x coordinates of choice
-		{
-			if ( y > 182 && y < 182 + 33 ) // check if click also lies within y coordinates of choice
+		int col = x / CELL_SIZE;
+		int row = y / CELL_SIZE;
+		if (col >= 0 && col < GRID_COLS && row >= 0 && row < GRID_ROWS)
+		{ 
+			int index = row * GRID_COLS + col;
+			switch (mCurrentBrush)
 			{
-				GAME_ENGINE->MessageBox(_T("Clicked."));
+			case CellType::Start:
+				if (mStartCell.x != -1)
+					mGrid[mStartCell.y * GRID_COLS + mStartCell.x] = CellType::Empty;
+				mStartCell = { col, row };
+				mGrid[index] = CellType::Start;
+				break;
+			case CellType::Destination:
+				if (mDestCell.x != -1)
+					mGrid[mDestCell.y * GRID_COLS + mDestCell.x] = CellType::Empty;
+				mDestCell = { col, row };
+				mGrid[index] = CellType::Destination;
+				break;
+			default:
+				mGrid[index] = mCurrentBrush;
+				break;
 			}
 		}
 	}
-	*/
 }
 
 void Game::MouseWheelAction(int x, int y, int distance, WPARAM wParam)
@@ -114,31 +156,29 @@ void Game::CheckKeyboard()
 
 void Game::KeyPressed(TCHAR key)
 {	
-	// DO NOT FORGET to use SetKeyList() !!
-
-	// Insert code that needs to execute when a key is pressed
-	// The function is executed when the key is *released*
-	// You need to specify the list of keys with the SetKeyList() function
-
-	/* Example:
 	switch (key)
 	{
-	case _T('K'): case VK_LEFT:
-		GAME_ENGINE->MessageBox("Moving left.");
+	case _T('S'):
+		mCurrentBrush = CellType::Start;
+		m_BrushType = L"BrushType: Start"; 
 		break;
-	case _T('L'): case VK_DOWN:
-		GAME_ENGINE->MessageBox("Moving down.");
+	case _T('D'):
+		mCurrentBrush = CellType::Destination;
+		m_BrushType = L"BrushType: Destination";
+
 		break;
-	case _T('M'): case VK_RIGHT:
-		GAME_ENGINE->MessageBox("Moving right.");
+	case _T('O'):
+		mCurrentBrush = CellType::Obstacle;
+		m_BrushType = L"BrushType: Obstacle";
+
 		break;
-	case _T('O'): case VK_UP:
-		GAME_ENGINE->MessageBox("Moving up.");
+	case _T('E'):
+		mCurrentBrush = CellType::Empty;
+		m_BrushType = L"BrushType: Empty";
 		break;
-	case VK_ESCAPE:
-		GAME_ENGINE->MessageBox("Escape menu.");
+	default:
+		break;
 	}
-	*/
 }
 
 void Game::CallAction(Caller* callerPtr)

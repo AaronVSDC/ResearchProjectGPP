@@ -56,5 +56,18 @@ private:
 	// -------------------------
 
 
+	enum class CellType { Empty, Start, Destination, Obstacle };
+
+	static const int GRID_COLS{ 20 };
+	static const int GRID_ROWS{ 15 };
+	static const int CELL_SIZE{ 32 };
+
+	std::vector<CellType> mGrid;
+	CellType mCurrentBrush{ CellType::Obstacle };
+	POINT mStartCell{ -1, -1 };
+	POINT mDestCell{ -1, -1 };
+
+	std::wstring m_BrushType = L"undefined"; 
+
 
 };

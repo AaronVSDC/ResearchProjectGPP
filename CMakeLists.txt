@@ -14,7 +14,7 @@ project ("ResearchProjectGPP")
 # Add source to this project's executable.
 add_executable (ResearchProjectGPP
 	Source/GameWinMain.cpp  
-	Source/AbstractGame.cpp  
+	Source/AbstractGame.cpp   
 	Source/Game.cpp 
 	Source/GameDefines.h 
 	Source/GameEngine.cpp 

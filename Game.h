@@ -72,12 +72,12 @@ private:
     std::wstring m_BrushType{ L"undefined" };
 
     // Buttons for brush selection and solving
-    Button mBtnStart;
-    Button mBtnDest;
-    Button mBtnObstacle;
-    Button mBtnEmpty;
-    Button mBtnSolve;
-    Button mBtnStep;
+    std::unique_ptr<Button> mBtnStart;
+    std::unique_ptr<Button> mBtnDest;
+    std::unique_ptr<Button> mBtnObstacle;
+    std::unique_ptr<Button> mBtnEmpty; 
+    std::unique_ptr<Button> mBtnSolve;
+    std::unique_ptr<Button> mBtnStep;
 
     // Path handling 
     std::vector<POINT> mPath;

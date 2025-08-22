@@ -48,40 +48,46 @@ void Game::Start()
     int baseX = GRID_COLS * CELL_SIZE + 20;
     int y = 20;
 
-    mBtnStart.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnStart.SetText(L"Start");
-    mBtnStart.AddActionListener(this);
-    mBtnStart.Show(); 
+    mBtnStart = std::make_unique<Button>();
+    mBtnStart->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnStart->SetText(L"Start");
+    mBtnStart->AddActionListener(this);
+    mBtnStart->Show();
     y += 40;
 
-    mBtnDest.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnDest.SetText(L"Destination");
-    mBtnDest.AddActionListener(this);
-    mBtnDest.Show();
+    mBtnDest = std::make_unique<Button>();
+    mBtnDest->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnDest->SetText(L"Destination");
+    mBtnDest->AddActionListener(this);
+    mBtnDest->Show();
     y += 40;
 
-    mBtnObstacle.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnObstacle.SetText(L"Obstacle");
-    mBtnObstacle.AddActionListener(this);
-    mBtnObstacle.Show();
+    mBtnObstacle = std::make_unique<Button>();
+    mBtnObstacle->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnObstacle->SetText(L"Obstacle");
+    mBtnObstacle->AddActionListener(this);
+    mBtnObstacle->Show();
     y += 40;
 
-    mBtnEmpty.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnEmpty.SetText(L"Empty");
-    mBtnEmpty.AddActionListener(this);
-    mBtnEmpty.Show();
+    mBtnEmpty = std::make_unique<Button>();
+    mBtnEmpty->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnEmpty->SetText(L"Empty");
+    mBtnEmpty->AddActionListener(this);
+    mBtnEmpty->Show();
+    y += 40; 
+
+    mBtnSolve = std::make_unique<Button>();
+    mBtnSolve->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnSolve->SetText(L"Solve");
+    mBtnSolve->AddActionListener(this);
+    mBtnSolve->Show();
     y += 40;
 
-    mBtnSolve.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnSolve.SetText(L"Solve");
-    mBtnSolve.AddActionListener(this);
-    mBtnSolve.Show();
-    y += 40;
-
-    mBtnStep.SetBounds(baseX, y, baseX + 100, y + 30);
-    mBtnStep.SetText(L"Step");
-    mBtnStep.AddActionListener(this);
-    mBtnStep.Show();
+    mBtnStep = std::make_unique<Button>();
+    mBtnStep->SetBounds(baseX, y, baseX + 100, y + 30);
+    mBtnStep->SetText(L"Step");
+    mBtnStep->AddActionListener(this);
+    mBtnStep->Show();
 }
 
 void Game::End()
@@ -91,8 +97,8 @@ void Game::End()
 
 void Game::Paint(RECT rect) const
 {
-    GAME_ENGINE->FillWindowRect(RGB(0, 0, 0));
-    for (int row = 0; row < GRID_ROWS; ++row)
+    GAME_ENGINE->FillWindowRect(RGB(255, 245, 238));
+    for (int row = 0; row < GRID_ROWS; ++row) 
     {
         for (int col = 0; col < GRID_COLS; ++col)
         {
@@ -240,31 +246,31 @@ void Game::KeyPressed(TCHAR key)
 
 void Game::CallAction(Caller* callerPtr)
 {
-    if (callerPtr == &mBtnStart)
+    if (callerPtr == mBtnStart.get())
     {
         mCurrentBrush = CellType::Start;
         m_BrushType = L"BrushType: Start";
     }
-    else if (callerPtr == &mBtnDest)
+    else if (callerPtr == mBtnDest.get())
     {
         mCurrentBrush = CellType::Destination;
         m_BrushType = L"BrushType: Destination";
     }
-    else if (callerPtr == &mBtnObstacle)
+    else if (callerPtr == mBtnObstacle.get())
     {
         mCurrentBrush = CellType::Obstacle;
         m_BrushType = L"BrushType: Obstacle";
     }
-    else if (callerPtr == &mBtnEmpty)
+    else if (callerPtr == mBtnEmpty.get())
     {
         mCurrentBrush = CellType::Empty;
         m_BrushType = L"BrushType: Empty";
     }
-    else if (callerPtr == &mBtnSolve)
+    else if (callerPtr == mBtnSolve.get())
     {
         SolvePath();
     }
-    else if (callerPtr == &mBtnStep)
+    else if (callerPtr == mBtnStep.get())
     {
         StepPath();
     }

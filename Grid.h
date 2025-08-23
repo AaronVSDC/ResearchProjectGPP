@@ -3,7 +3,9 @@
 
 #include "AbstractGame.h"
 
-class Grid
+enum class CellType { Empty, Start, Destination, Obstacle };
+
+class Grid final
 {
 public:
 	void Start(); 
@@ -11,9 +13,9 @@ public:
 	void Paint() const;
 	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam); 
 
-private: 
+	std::vector<std::vector<CellType>>& GetGrid() { return m_Grid;  };
+private:
 
-	enum class CellType { Empty, Start, Destination, Obstacle };
 	std::vector<std::vector<CellType>> m_Grid;
 
 
@@ -22,11 +24,14 @@ private:
 	const int CELL_SIZE{ 32 };
 
 	int LEFT_OFFSET{}; 
-	int TOP_OFFSET{}; 
+	int TOP_OFFSET{};
+
+	bool m_IsMousePressedLeft = false; 
+	bool m_IsMousePressedRight = false;
 
 	void PaintGrid() const ;
-	void DecideStartAndDestination();
-	bool PointToGrid(int x, int y, int& ourRow, int& outColl) const; 
+	void DecideStartAndDestination(); 
+	bool PointToGrid(int x, int y, int& ourRow, int& outCol) const; 
 
 };
 

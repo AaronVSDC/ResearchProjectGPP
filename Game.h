@@ -12,32 +12,24 @@
 #include "Resource.h"
 #include "GameEngine.h"
 #include "AbstractGame.h"
-#include "Grid.h"
 
-//-----------------------------------------------------------------
-// Game Class
-//-----------------------------------------------------------------
+
+class JumpPointSearch;
+class Grid;
+
 class Game : public AbstractGame, public Callable
 {
 public:
-    //---------------------------
-    // Constructor(s) and Destructor
-    //---------------------------
+
     Game();
 
     virtual ~Game() override;
 
-    //---------------------------
-    // Disabling copy/move constructors and assignment operators
-    //---------------------------
     Game(const Game& other) = delete;
     Game(Game&& other) noexcept = delete;
     Game& operator=(const Game& other) = delete;
     Game& operator=(Game&& other) noexcept = delete;
 
-    //---------------------------
-    // General Member Functions
-    //---------------------------
     void Initialize() override;
     void Start() override;
     void End() override;
@@ -52,11 +44,8 @@ public:
     void CallAction(Caller* callerPtr) override;
 
 private:
-    // -------------------------
-    // Datamembers
-    // ------------------------- 
-    Grid m_Grid; 
-
+    std::unique_ptr<Grid> m_pGrid; 
+    std::unique_ptr<JumpPointSearch> m_pJumpPointSearch; 
 
 
     // Buttons for brush selection and solving

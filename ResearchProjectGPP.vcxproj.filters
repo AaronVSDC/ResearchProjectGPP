@@ -30,6 +30,9 @@
     <ClCompile Include="Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="JumpPointSearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractGame.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="Grid.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JumpPointSearch.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -44,8 +44,6 @@ void Grid::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wPar
 
 void Grid::PaintGrid() const
 {
-
-
 	for (int row = 0; row < GRID_ROWS; ++row)
 	{
 		for (int collumn = 0; collumn < GRID_COLS; ++collumn)
@@ -66,7 +64,7 @@ void Grid::PaintGrid() const
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case CellType::Obstacle:
-				GAME_ENGINE->SetColor(RGB(135, 8, 72));
+				GAME_ENGINE->SetColor(RGB(240,234,214));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			default:

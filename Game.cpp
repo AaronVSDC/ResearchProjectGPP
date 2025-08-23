@@ -1,25 +1,12 @@
-//-----------------------------------------------------------------
-// Main Game File
-// C++ Source - Game.cpp - version v8_01
-//-----------------------------------------------------------------
-
-//-----------------------------------------------------------------
-// Include Files
-//-----------------------------------------------------------------
 #include "Game.h"
-
-//-----------------------------------------------------------------
-// Game Member Functions																				
-//-----------------------------------------------------------------
-
-Game::Game() 																	
+#include "Grid.h"
+#include "JumpPointSearch.h"
+Game::Game()
 {
-	// nothing to create
 }
 
 Game::~Game()																						
 {
-	// nothing to destroy
 }
 
 void Game::Initialize()			
@@ -33,6 +20,9 @@ void Game::Initialize()
 	GAME_ENGINE->SetHeight(1000);
     GAME_ENGINE->SetFrameRate(50);
 
+	m_pGrid = std::make_unique<Grid>();
+	m_pJumpPointSearch = std::make_unique<JumpPointSearch>(*m_pGrid);
+
 	// Set the keys that the game needs to listen to
 	//tstringstream buffer;
 	//buffer << _T("KLMO");
@@ -43,7 +33,7 @@ void Game::Initialize()
 
 void Game::Start()
 {
-	m_Grid.Start(); 
+	m_pGrid->Start(); 
 }
 
 void Game::End()
@@ -54,16 +44,17 @@ void Game::End()
 void Game::Paint(RECT rect) const
 {
 	GAME_ENGINE->FillWindowRect(RGB(18, 18, 18)); 
-	m_Grid.Paint(); 
+	m_pGrid->Paint(); 
 }
 
 void Game::Tick()
 {
+	m_pJumpPointSearch->Tick(); 
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
 {
-	m_Grid.MouseButtonAction(isLeft, isDown, x, y, wParam); 
+	m_pGrid->MouseButtonAction(isLeft, isDown, x, y, wParam); 
 
 }
 

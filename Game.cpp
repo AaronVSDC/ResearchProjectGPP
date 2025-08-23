@@ -18,7 +18,7 @@ void Game::Initialize()
 	
 	GAME_ENGINE->SetWidth(1880);
 	GAME_ENGINE->SetHeight(1000);
-    GAME_ENGINE->SetFrameRate(50);
+    GAME_ENGINE->SetFrameRate(165);
 
 	m_pGrid = std::make_unique<Grid>();
 	m_pJumpPointSearch = std::make_unique<JumpPointSearch>(*m_pGrid);

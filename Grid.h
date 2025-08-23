@@ -2,6 +2,8 @@
 #include <vector>
 
 #include "AbstractGame.h"
+#include <random>
+
 
 enum class NodeType
 {
@@ -60,6 +62,6 @@ private:
 	void PaintGrid() const ;
 	void DecideStartAndDestination(); 
 	bool PointToGrid(int x, int y, int& ourRow, int& outCol) const; 
-
+	void FillRandomWalls(); 
 };
 

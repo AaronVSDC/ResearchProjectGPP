@@ -17,6 +17,8 @@ void Grid::Start()
 		}
 	}
 	DecideStartAndDestination();
+	FillRandomWalls();
+
 }
 
 void Grid::Paint() const
@@ -99,15 +101,37 @@ void Grid::PaintGrid() const
 
 
 
-
-			GAME_ENGINE->SetColor(RGB(23, 23, 23));
+			GAME_ENGINE->SetColor(RGB(23, 23, 23)); 
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
 
+			if (m_Nodes[row][collumn]->fScore != INT_MAX)
+			{
+				GAME_ENGINE->SetColor(RGB(255, 255, 255));
+				GAME_ENGINE->DrawString(to_tstring(m_Nodes[row][collumn]->fScore), left + 4, top + 4);
+			}
 
 		}
 	}
 }
 
+void Grid::FillRandomWalls()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+	const float wallChance{ 0.3f };
+
+	for (auto& row : m_Nodes)
+	{
+		for (auto& node : row)
+		{
+			if (node->nodeType == NodeType::Empty && dist(gen) < wallChance)
+			{
+				node->nodeType = NodeType::Obstacle;
+			}
+		}
+	}
+}
 void Grid::DecideStartAndDestination()
 {
 	//keep in mind indices start from 0

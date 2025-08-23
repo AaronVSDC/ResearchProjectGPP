@@ -12,9 +12,7 @@
 #include "Resource.h"
 #include "GameEngine.h"
 #include "AbstractGame.h"
-
-#include <vector>
-#include <string>
+#include "Grid.h"
 
 //-----------------------------------------------------------------
 // Game Class
@@ -56,20 +54,10 @@ public:
 private:
     // -------------------------
     // Datamembers
-    // -------------------------
+    // ------------------------- 
+    Grid m_Grid; 
 
-    enum class CellType { Empty, Start, Destination, Obstacle };
 
-    static const int GRID_COLS{ 20 };
-    static const int GRID_ROWS{ 15 };
-    static const int CELL_SIZE{ 32 };
-
-    std::vector<CellType> mGrid;
-    CellType mCurrentBrush{ CellType::Obstacle };
-    POINT mStartCell{ -1, -1 };
-    POINT mDestCell{ -1, -1 };
-
-    std::wstring m_BrushType{ L"undefined" };
 
     // Buttons for brush selection and solving
     std::unique_ptr<Button> mBtnStart;
@@ -78,26 +66,4 @@ private:
     std::unique_ptr<Button> mBtnEmpty; 
     std::unique_ptr<Button> mBtnSolve;
     std::unique_ptr<Button> mBtnStep;
-
-    // Path handling 
-    std::vector<POINT> mPath;
-    size_t mPathStep{ 0 };
-
-    // JPS helpers
-    struct Node
-    {
-        int x;
-        int y;
-        float g;
-        float f;
-        Node* parent;
-    };
-
-    bool IsWalkable(int x, int y) const;
-    POINT Jump(int x, int y, int dx, int dy) const;
-    std::vector<std::pair<int, int>> GetNeighbors(const Node* node) const;
-    float Heuristic(int x1, int y1, int x2, int y2) const;
-    std::vector<POINT> JumpPointSearch();
-    void SolvePath();
-    void StepPath();
 };

@@ -36,14 +36,18 @@ void Game::Start()
 {
 	m_pGrid->Start();
 	m_pAStar->Start();
-	 
+	m_pJumpPointSearch->Start(); 
 
 	m_pBtnSolveAStar = std::make_unique<Button>(_T("SolveAStar"));
 	m_pBtnSolveAStar->SetBounds(10, 10, 110, 40);
 	m_pBtnSolveAStar->AddActionListener(this);
 
+	m_pBtnSolveJumpPointSearch = std::make_unique<Button>(_T("SolveJumpPointSearch"));
+	m_pBtnSolveJumpPointSearch->SetBounds(10, 50, 110, 80);
+	m_pBtnSolveJumpPointSearch->AddActionListener(this);
+
 	m_pBtnReset = std::make_unique<Button>(_T("Reset"));
-	m_pBtnReset->SetBounds(10, 50, 110, 80);
+	m_pBtnReset->SetBounds(10, 90, 110, 120);
 	m_pBtnReset->AddActionListener(this);
 
 }
@@ -64,6 +68,9 @@ void Game::Tick()
 	//m_pJumpPointSearch->Tick();
 	if (m_StartAStar)
 		m_pAStar->Tick();
+	else if (m_StartJumpPointSearch)
+		m_pJumpPointSearch->Tick(); 
+
 
 }
 
@@ -116,13 +123,22 @@ void Game::CallAction(Caller* callerPtr)
 	{
 		m_pAStar->Reset();
 		m_pAStar->Start();
-		m_StartAStar = true; 
+		m_StartAStar = true;
+	}
+	else if (callerPtr == m_pBtnSolveJumpPointSearch.get())
+	{
+		m_pJumpPointSearch->Reset();
+		m_pJumpPointSearch->Start();
+		m_StartJumpPointSearch = true; 
 	}
 	else if (callerPtr == m_pBtnReset.get())
 	{
 		m_pAStar->Reset();
+		m_pJumpPointSearch->Reset(); 
 		m_pGrid->Reset();
-	} 
+
+	}
+	
 }
 
 

@@ -50,8 +50,10 @@ private:
     std::unique_ptr<AStar> m_pAStar; 
 
     bool m_StartAStar = false;
+    bool m_StartJumpPointSearch = false; 
 
     std::unique_ptr<Button> m_pBtnSolveAStar;
+    std::unique_ptr<Button> m_pBtnSolveJumpPointSearch;
     std::unique_ptr<Button> m_pBtnReset;
 
 };

@@ -16,11 +16,11 @@ struct Node
 {
 	int row = 0;
 	int column = 0;
-	int gScore = std::numeric_limits<int>::infinity();
+	int gScore = INT_MAX;
 	int hScore = 0;
-	int fScore = std::numeric_limits<int>::infinity();
+	int fScore = INT_MAX; 
 
-	Node* parent; 
+	Node* parent = nullptr; 
 	bool open = false;
 	bool closed = false;
 	NodeType nodeType = NodeType::Empty; 

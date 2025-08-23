@@ -100,7 +100,7 @@ void Grid::PaintGrid() const
 
 
 
-			GAME_ENGINE->SetColor(RGB(200, 200, 200));
+			GAME_ENGINE->SetColor(RGB(23, 23, 23));
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
 
 
@@ -141,9 +141,9 @@ void Grid::Reset()
 	{
 		for (auto& node : row)
 		{
-			node->gScore = std::numeric_limits<int>::infinity();
+			node->gScore = INT_MAX;
 			node->hScore = 0;
-			node->fScore = std::numeric_limits<int>::infinity();
+			node->fScore = INT_MAX; 
 			node->parent = nullptr;
 			node->open = false;
 			node->closed = false;

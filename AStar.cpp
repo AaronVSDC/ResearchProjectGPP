@@ -5,11 +5,30 @@ void AStar::Start()
 {
     FindStartNode();
     FindDestinationNode();
+    Initialize(); 
 }
 
 void AStar::Tick()
 {
-    Step();
+    Step(); 
+}
+
+void AStar::Initialize()
+{
+    m_StartNode->gScore = 0;
+
+    auto octile = [&](Node* a, Node* b)
+        {
+            constexpr int costStraight = 10;
+            constexpr int costDiagonal = 14;
+            const int dx = std::abs(a->column - b->column);
+            const int dy = std::abs(a->row - b->row);
+            const int mn = min(dx, dy);
+            const int mx = max(dx, dy);
+            return costDiagonal * mn + costStraight * (mx - mn);
+        };
+    m_StartNode->hScore = octile(m_StartNode, m_DestinationNode);
+    m_StartNode->fScore = m_StartNode->hScore; 
 }
 
 void AStar::Step()
@@ -68,14 +87,24 @@ void AStar::FindDestinationNode()
 void AStar::EvaluateNeighbors()
 {
     auto& nodes = m_Grid.GetNodes();
+    const int rows = m_Grid.GetAmountOfGridRows();
+    const int cols = m_Grid.GetAmountOfGridCols();
 
-    auto tryNeighbor = [&](int row, int column)
+    auto inBounds = [&](int r, int c) { return r >= 0 && r < rows && c >= 0 && c < cols; };
+    auto isPassable = [&](int r, int c) { if (!inBounds(r, c)) return false; return nodes[r][c]->nodeType != NodeType::Obstacle; };
+
+    auto tryNeighbor = [&](int r, int c, bool diagonal)
         {
-            if (row < 0 || row >= m_Grid.GetAmountOfGridRows() || column < 0 || column >= m_Grid.GetAmountOfGridCols())
-                return;
+            if (!inBounds(r, c)) return; 
 
-            Node* neighbor = nodes[row][column];
+            if (diagonal)
+            {
+                int cr = m_CurrentNode->row;
+                int cc = m_CurrentNode->column;
+                if (!(isPassable(cr, c) && isPassable(r, cc))) return;
+            }
 
+            Node* neighbor = nodes[r][c];
             if (neighbor->nodeType == NodeType::Obstacle) return;
             if (neighbor->closed) return;
 
@@ -88,10 +117,20 @@ void AStar::EvaluateNeighbors()
             }
         };
 
-    tryNeighbor(m_CurrentNode->row - 1, m_CurrentNode->column); // up
-    tryNeighbor(m_CurrentNode->row + 1, m_CurrentNode->column); // down
-    tryNeighbor(m_CurrentNode->row, m_CurrentNode->column + 1); // right
-    tryNeighbor(m_CurrentNode->row, m_CurrentNode->column - 1); // left
+    const int r = m_CurrentNode->row;
+    const int c = m_CurrentNode->column;
+
+    // 4 straight
+    tryNeighbor(r - 1, c, false); // up
+    tryNeighbor(r + 1, c, false); // down
+    tryNeighbor(r, c + 1, false); // right
+    tryNeighbor(r, c - 1, false); // left
+
+    // 4 diagonals
+    tryNeighbor(r - 1, c - 1, true); // up-left
+    tryNeighbor(r - 1, c + 1, true); // up-right
+    tryNeighbor(r + 1, c + 1, true); // down-right
+    tryNeighbor(r + 1, c - 1, true); // down-left
 
     m_OpenList.remove(m_CurrentNode);
     m_CurrentNode->closed = true;
@@ -111,9 +150,9 @@ void AStar::SelectLowestCostNode()
         m_OpenList.begin(), m_OpenList.end(),
         [](const Node* a, const Node* b)
         {
-            if (a->fScore == b->fScore)
-                return a->gScore < b->gScore; //prefer lower gScore with tiebreaker
-            return a->fScore < b->fScore;
+            if (a->fScore != b->fScore) return a->fScore < b->fScore;
+            if (a->hScore != b->hScore) return a->hScore < b->hScore; 
+            return a->gScore > b->gScore; 
         });
 
     m_CurrentNode = (it != m_OpenList.end()) ? *it : nullptr;
@@ -121,21 +160,33 @@ void AStar::SelectLowestCostNode()
 
 void AStar::CalculateNodeCost(Node* from, Node* node)
 {
-    auto heuristicManhatten = [](Node* a, Node* b)
+    constexpr int costStraight = 10;
+    constexpr int costDiagonal = 14;  
+
+    auto heuristicOctile = [&](Node* a, Node* b)
         {
             const int dx = std::abs(a->column - b->column);
             const int dy = std::abs(a->row - b->row);
-            return (dx + dy) * 10;
-
+            const int mn = min(dx, dy);
+            const int mx = max(dx, dy);
+            return costDiagonal * mn + costStraight * (mx - mn);
         };
-    constexpr int kStraight = 10;
 
-    const int tentativeG = (from ? from->gScore : 0) + kStraight;
+    int stepCost = costStraight;
+    if (from)
+    {
+        const int dx = std::abs(node->column - from->column);
+        const int dy = std::abs(node->row - from->row);
+        if (dx == 1 && dy == 1) stepCost = costDiagonal; 
+    }
+
+    const int tentativeG = (from ? from->gScore : 0) + stepCost;
+
     if (!node->open || tentativeG < node->gScore)
     {
         node->parent = from;
         node->gScore = tentativeG;
-        node->hScore = heuristicManhatten(node, m_DestinationNode);
+        node->hScore = heuristicOctile(node, m_DestinationNode);
         node->fScore = node->gScore + node->hScore;
     }
 }

@@ -18,7 +18,7 @@ void Game::Initialize()
 	
 	GAME_ENGINE->SetWidth(1880);
 	GAME_ENGINE->SetHeight(1000);
-    GAME_ENGINE->SetFrameRate(10);
+    GAME_ENGINE->SetFrameRate(50);
 
 	m_pGrid = std::make_unique<Grid>();
 	m_pJumpPointSearch = std::make_unique<JumpPointSearch>(*m_pGrid);
@@ -30,20 +30,22 @@ void Game::Initialize()
 	//buffer << (char) VK_RIGHT;
 	GAME_ENGINE->SetKeyList(L" ");
 
+}
+
+void Game::Start()
+{
+	m_pGrid->Start();
+	m_pAStar->Start();
+	 
+
 	m_pBtnSolveAStar = std::make_unique<Button>(_T("SolveAStar"));
 	m_pBtnSolveAStar->SetBounds(10, 10, 110, 40);
 	m_pBtnSolveAStar->AddActionListener(this);
 
 	m_pBtnReset = std::make_unique<Button>(_T("Reset"));
 	m_pBtnReset->SetBounds(10, 50, 110, 80);
-	m_pBtnReset->AddActionListener(this); 
+	m_pBtnReset->AddActionListener(this);
 
-}
-
-void Game::Start()
-{
-	m_pGrid->Start();
-	m_pAStar->Start(); 
 }
 
 void Game::End()

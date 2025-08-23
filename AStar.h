@@ -14,6 +14,7 @@ public:
     void Reset();
 
 private:
+    void Initialize(); 
 
     void Step();
     void BacktrackStep();

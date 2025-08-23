@@ -16,12 +16,11 @@ struct Node
 {
 	int row = 0;
 	int column = 0;
-	float gScore = std::numeric_limits<float>::infinity();
-	float hScore = 0.f;
-	float fScore = std::numeric_limits<float>::infinity();
+	int gScore = std::numeric_limits<int>::infinity();
+	int hScore = 0;
+	int fScore = std::numeric_limits<int>::infinity();
 
-	int parentRow = -1;
-	int parentCol = -1;
+	Node* parent; 
 	bool open = false;
 	bool closed = false;
 	NodeType nodeType = NodeType::Empty; 
@@ -36,6 +35,8 @@ public:
 	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam); 
 
 	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes;  }
+	int GetAmountOfGridCols() const { return GRID_COLS;  }
+	int GetAmountOfGridRows() const { return GRID_ROWS;  }
 private:
 
 	std::vector<std::vector<Node*>> m_Nodes;

@@ -6,7 +6,16 @@ void Grid::Start()
 	LEFT_OFFSET = GAME_ENGINE->GetWidth() / 2 - GRID_COLS * CELL_SIZE / 2;
 	TOP_OFFSET = GAME_ENGINE->GetHeight() / 2 - GRID_ROWS * CELL_SIZE / 2;
 
-	m_Nodes.assign(GRID_ROWS, std::vector<Node*>(GRID_COLS, new Node{}));
+	m_Nodes.assign(GRID_ROWS, std::vector<Node*>(GRID_COLS, nullptr));
+	for (int row = 0; row < GRID_ROWS; ++row)
+	{
+		for (int col = 0; col < GRID_COLS; ++col)
+		{
+			m_Nodes[row][col] = new Node{};
+			m_Nodes[row][col]->row = row;
+			m_Nodes[row][col]->column = col;
+		}
+	}
 	DecideStartAndDestination();
 }
 
@@ -75,8 +84,23 @@ void Grid::PaintGrid() const
 				break;
 			}
 
-			GAME_ENGINE->SetColor(RGB(200, 200, 200));
+			if (m_Nodes[row][collumn]->open)
+			{
+
+				GAME_ENGINE->SetColor(RGB(0, 200, 200));
+				GAME_ENGINE->DrawRect(left, top, right, bottom);
+			}
+			if (m_Nodes[row][collumn]->closed)
+			{
+
+				GAME_ENGINE->SetColor(RGB(200, 200, 0));
+				GAME_ENGINE->DrawRect(left, top, right, bottom);
+			}
+
+			GAME_ENGINE->SetColor(RGB(200, 200, 200)); 
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
+			
+
 		}
 	}
 }

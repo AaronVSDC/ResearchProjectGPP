@@ -51,6 +51,8 @@ void Game::Paint(RECT rect) const
 void Game::Tick()
 {
 	//m_pJumpPointSearch->Tick();
+	m_pAStar->Tick();
+
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
@@ -89,7 +91,6 @@ void Game::CheckKeyboard()
 	if (GAME_ENGINE->IsKeyDown(_T('M'))) xIcon += xSpeed;
 	if (GAME_ENGINE->IsKeyDown(_T('O'))) yIcon -= ySpeed;
 	*/
-	if (GAME_ENGINE->IsKeyDown(_T(' '))) m_pAStar->Tick();
 
 }
 

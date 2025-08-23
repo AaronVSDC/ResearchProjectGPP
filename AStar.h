@@ -16,11 +16,17 @@ private:
 
 	void Step();
 	void FindStartNode();
-	void EvaluateNeighbors(); 
+	void FindDestinationNode(); 
+	void EvaluateNeighbors();
+	void SelectLowestCostNode();  
+	void CalculateNodeCost(Node* from, Node* node);
 	Grid& m_Grid; 
 	std::list<Node*> m_OpenList;
 	std::list<Node*> m_ClosedList;
 
-	Node* m_CurrentNode = nullptr; 
+	Node* m_CurrentNode = nullptr;
+	Node* m_StartNode = nullptr;
+	Node* m_DestinationNode = nullptr;
+
 };
 

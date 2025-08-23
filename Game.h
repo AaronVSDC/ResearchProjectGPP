@@ -12,6 +12,7 @@
 #include "Resource.h"
 #include "GameEngine.h"
 #include "AbstractGame.h"
+#include "AStar.h"
 
 
 class JumpPointSearch;
@@ -45,7 +46,8 @@ public:
 
 private:
     std::unique_ptr<Grid> m_pGrid; 
-    std::unique_ptr<JumpPointSearch> m_pJumpPointSearch; 
+    std::unique_ptr<JumpPointSearch> m_pJumpPointSearch;
+    std::unique_ptr<AStar> m_pAStar; 
 
 
     // Buttons for brush selection and solving

@@ -6,7 +6,7 @@ void Grid::Start()
 	LEFT_OFFSET = GAME_ENGINE->GetWidth() / 2 - GRID_COLS * CELL_SIZE / 2;
 	TOP_OFFSET = GAME_ENGINE->GetHeight() / 2 - GRID_ROWS * CELL_SIZE / 2;
 
-	m_Grid.assign(GRID_ROWS, std::vector<CellType>(GRID_COLS, CellType::Empty));
+	m_Nodes.assign(GRID_ROWS, std::vector<Node*>(GRID_COLS, new Node{}));
 	DecideStartAndDestination();
 }
 
@@ -23,8 +23,8 @@ void Grid::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wPar
 		int collumn{}; 
 		if (PointToGrid(x, y, row, collumn))
 		{
-			if (m_Grid[row][collumn] != CellType::Start and m_Grid[row][collumn] != CellType::Destination)
-				m_Grid[row][collumn] = CellType::Obstacle;
+			if (m_Nodes[row][collumn]->nodeType != NodeType::Start and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
+				m_Nodes[row][collumn]->nodeType = NodeType::Obstacle;
 		}
 	}
 	if (!isLeft and isDown)
@@ -33,9 +33,9 @@ void Grid::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wPar
 		int collumn{};
 		if (PointToGrid(x, y, row, collumn))
 		{
-			if (m_Grid[row][collumn] == CellType::Obstacle)
+			if (m_Nodes[row][collumn]->nodeType == NodeType::Obstacle)
 			{
-				m_Grid[row][collumn] = CellType::Empty; 
+				m_Nodes[row][collumn]->nodeType = NodeType::Empty; 
 			}
 		}
 	}
@@ -53,18 +53,22 @@ void Grid::PaintGrid() const
 			int right = left + CELL_SIZE;
 			int bottom = top + CELL_SIZE;
 
-			switch (m_Grid[row][collumn])
+			switch (m_Nodes[row][collumn]->nodeType)
 			{
-			case CellType::Start:
+			case NodeType::Start:
 				GAME_ENGINE->SetColor(RGB(0, 255, 0));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
-			case CellType::Destination:
+			case NodeType::Destination:
 				GAME_ENGINE->SetColor(RGB(255, 0, 0));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
-			case CellType::Obstacle:
+			case NodeType::Obstacle:
 				GAME_ENGINE->SetColor(RGB(240,234,214));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+				break;
+			case NodeType::Path:
+				GAME_ENGINE->SetColor(RGB(0, 0, 214));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			default:
@@ -83,12 +87,12 @@ void Grid::DecideStartAndDestination()
 	std::size_t rowStart = GRID_ROWS / 2 - 1;
 	std::size_t collumnStart = 4;
 
-	m_Grid[rowStart][collumnStart] = CellType::Start; 
+	m_Nodes[rowStart][collumnStart]->nodeType = NodeType::Start; 
 
 	std::size_t rowDestination = GRID_ROWS / 2 - 1;
 	std::size_t collumnDestination = GRID_COLS - 5;
 
-	m_Grid[rowDestination][collumnDestination] = CellType::Destination; 
+	m_Nodes[rowDestination][collumnDestination]->nodeType = NodeType::Destination; 
 }
 
 bool Grid::PointToGrid(int x, int y, int& outRow, int& outCol) const

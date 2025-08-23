@@ -22,18 +22,19 @@ void Game::Initialize()
 
 	m_pGrid = std::make_unique<Grid>();
 	m_pJumpPointSearch = std::make_unique<JumpPointSearch>(*m_pGrid);
-
+	m_pAStar = std::make_unique<AStar>(*m_pGrid); 
 	// Set the keys that the game needs to listen to
 	//tstringstream buffer;
 	//buffer << _T("KLMO");
 	//buffer << (char) VK_LEFT;
 	//buffer << (char) VK_RIGHT;
-	//GAME_ENGINE->SetKeyList(buffer.str());
+	GAME_ENGINE->SetKeyList(L" ");
 }
 
 void Game::Start()
 {
-	m_pGrid->Start(); 
+	m_pGrid->Start();
+	m_pAStar->Start(); 
 }
 
 void Game::End()
@@ -49,7 +50,7 @@ void Game::Paint(RECT rect) const
 
 void Game::Tick()
 {
-	m_pJumpPointSearch->Tick(); 
+	//m_pJumpPointSearch->Tick();
 }
 
 void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
@@ -84,11 +85,12 @@ void Game::CheckKeyboard()
 	// Is executed once per frame 
 
 	/* Example:
-	if (GAME_ENGINE->IsKeyDown(_T('K'))) xIcon -= xSpeed;
 	if (GAME_ENGINE->IsKeyDown(_T('L'))) yIcon += xSpeed;
 	if (GAME_ENGINE->IsKeyDown(_T('M'))) xIcon += xSpeed;
 	if (GAME_ENGINE->IsKeyDown(_T('O'))) yIcon -= ySpeed;
 	*/
+	if (GAME_ENGINE->IsKeyDown(_T(' '))) m_pAStar->Tick();
+
 }
 
 void Game::KeyPressed(TCHAR key)

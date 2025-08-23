@@ -62,6 +62,18 @@ void Grid::PaintGrid() const
 			int right = left + CELL_SIZE;
 			int bottom = top + CELL_SIZE;
 
+
+			if (m_Nodes[row][collumn]->open and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
+			{
+				GAME_ENGINE->SetColor(RGB(0, 200, 200));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+			}
+			if (m_Nodes[row][collumn]->closed and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
+			{
+				GAME_ENGINE->SetColor(RGB(200, 200, 0));
+				GAME_ENGINE->FillRect(left, top, right, bottom);
+			}
+
 			switch (m_Nodes[row][collumn]->nodeType)
 			{
 			case NodeType::Start:
@@ -73,7 +85,7 @@ void Grid::PaintGrid() const
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case NodeType::Obstacle:
-				GAME_ENGINE->SetColor(RGB(240,234,214));
+				GAME_ENGINE->SetColor(RGB(240, 234, 214));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case NodeType::Path:
@@ -84,22 +96,13 @@ void Grid::PaintGrid() const
 				break;
 			}
 
-			if (m_Nodes[row][collumn]->open)
-			{
 
-				GAME_ENGINE->SetColor(RGB(0, 200, 200));
-				GAME_ENGINE->DrawRect(left, top, right, bottom);
-			}
-			if (m_Nodes[row][collumn]->closed)
-			{
 
-				GAME_ENGINE->SetColor(RGB(200, 200, 0));
-				GAME_ENGINE->DrawRect(left, top, right, bottom);
-			}
 
-			GAME_ENGINE->SetColor(RGB(200, 200, 200)); 
+
+			GAME_ENGINE->SetColor(RGB(200, 200, 200));
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
-			
+
 
 		}
 	}
@@ -130,4 +133,22 @@ bool Grid::PointToGrid(int x, int y, int& outRow, int& outCol) const
 	outCol = localX / CELL_SIZE;  
 	outRow = localY / CELL_SIZE; 
 	return true;
+}
+
+void Grid::Reset()
+{
+	for (auto& row : m_Nodes)
+	{
+		for (auto& node : row)
+		{
+			node->gScore = std::numeric_limits<int>::infinity();
+			node->hScore = 0;
+			node->fScore = std::numeric_limits<int>::infinity();
+			node->parent = nullptr;
+			node->open = false;
+			node->closed = false;
+			node->nodeType = NodeType::Empty;
+		}
+	}
+	DecideStartAndDestination();
 }

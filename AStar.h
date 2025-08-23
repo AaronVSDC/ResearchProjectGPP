@@ -11,11 +11,13 @@ public:
 
     void Start();
     void Tick();
+    void Reset();
 
 private:
 
     void Step();
-    void BacktrackStep(); 
+    void BacktrackStep();
+
     void FindStartNode();
     void FindDestinationNode();
     void EvaluateNeighbors();

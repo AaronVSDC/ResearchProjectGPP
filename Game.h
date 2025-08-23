@@ -49,12 +49,9 @@ private:
     std::unique_ptr<JumpPointSearch> m_pJumpPointSearch;
     std::unique_ptr<AStar> m_pAStar; 
 
+    bool m_StartAStar = false;
 
-    // Buttons for brush selection and solving
-    std::unique_ptr<Button> mBtnStart;
-    std::unique_ptr<Button> mBtnDest;
-    std::unique_ptr<Button> mBtnObstacle;
-    std::unique_ptr<Button> mBtnEmpty; 
-    std::unique_ptr<Button> mBtnSolve;
-    std::unique_ptr<Button> mBtnStep;
+    std::unique_ptr<Button> m_pBtnSolveAStar;
+    std::unique_ptr<Button> m_pBtnReset;
+
 };

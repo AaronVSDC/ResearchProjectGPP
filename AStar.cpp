@@ -157,3 +157,14 @@ void AStar::BacktrackStep()
         m_CurrentNode = nullptr;
     }
 }
+
+void AStar::Reset()
+{
+    m_OpenList.clear();
+    m_ClosedList.clear();
+    m_CurrentNode = nullptr;
+    m_StartNode = nullptr;
+    m_DestinationNode = nullptr;
+    m_BacktrackNode = nullptr;
+    m_IsBacktracking = false;
+}

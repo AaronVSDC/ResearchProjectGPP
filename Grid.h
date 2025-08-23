@@ -33,10 +33,12 @@ public:
 
 	void Paint() const;
 	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam); 
+	void Reset();
 
 	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes;  }
 	int GetAmountOfGridCols() const { return GRID_COLS;  }
 	int GetAmountOfGridRows() const { return GRID_ROWS;  }
+
 private:
 
 	std::vector<std::vector<Node*>> m_Nodes;

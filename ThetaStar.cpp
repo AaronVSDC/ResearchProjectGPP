@@ -108,8 +108,6 @@ void ThetaStar::BacktrackStep()
 
     if (!HasLineOfSight(m_BacktrackNode->parent, m_LastWaypoint))
     {
-        if (m_BacktrackNode != m_StartNode and m_BacktrackNode != m_DestinationNode)
-            m_BacktrackNode->nodeType = NodeType::Path;
 
         m_LastWaypoint = m_BacktrackNode;
     }
@@ -376,6 +374,13 @@ void ThetaStar::FinalizePathVisualization()
     auto waypoint = ExtractWaypoints(chain);
     m_Waypoints = std::move(waypoint);  
 
+    for (Node* node : m_Waypoints)
+    {
+        if (node != m_StartNode && node != m_DestinationNode)
+        {
+            node->nodeType = NodeType::Path;
+        }
+    }
 }
 
 

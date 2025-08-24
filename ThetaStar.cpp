@@ -37,7 +37,7 @@ void ThetaStar::Paint() const
         int x2 = b->column * cellSize + cellSize / 2 + leftOffset;
         int y2 = b->row * cellSize + cellSize / 2 + topOffset;
 
-        GAME_ENGINE->DrawLine(x1, y1, x2, y2);
+        GAME_ENGINE->DrawLine(x1, y1, x2, y2, 5);
     }
 }
 void ThetaStar::Reset()

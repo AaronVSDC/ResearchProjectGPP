@@ -108,6 +108,8 @@ public:
 
 	bool		DrawLine			(int x1, int y1, int x2, int y2)										const;
 
+	bool		DrawLine            (int x1, int y1, int x2, int y2, int penWidth) const;
+
 	bool		DrawRect			(int left, int top, int right, int bottom)								const;
 	bool		FillRect			(int left, int top, int right, int bottom)								const;
 	bool		FillRect			(int left, int top, int right, int bottom, int opacity)					const;

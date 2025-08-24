@@ -511,8 +511,23 @@ bool GameEngine::DrawLine(int x1, int y1, int x2, int y2) const
 		return true;
 	}
 	else return false;
-}
+} 
+bool GameEngine::DrawLine(int x1, int y1, int x2, int y2, int penWidth) const
+{
+	if (m_IsPainting)
+	{
+		HPEN hOldPen, hNewPen = CreatePen(PS_SOLID, penWidth, m_ColDraw);
+		hOldPen = (HPEN)SelectObject(m_HdcDraw, hNewPen);
+		MoveToEx(m_HdcDraw, x1, y1, nullptr);
+		LineTo(m_HdcDraw, x2, y2);
+		MoveToEx(m_HdcDraw, 0, 0, nullptr); // reset the position
+		SelectObject(m_HdcDraw, hOldPen);
+		DeleteObject(hNewPen);
 
+		return true;
+	}
+	else return false;
+}
 bool GameEngine::DrawPolygon(const POINT ptsArr[], int count) const
 {
 	return DrawPolygon(ptsArr, count, false);

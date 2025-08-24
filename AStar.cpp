@@ -19,18 +19,8 @@ void AStar::Initialize()
 {
     m_StartNode->gScore = 0;
 
-    auto octile = [&](Node* a, Node* b)
-        {
-            constexpr int costStraight = 10;
-            constexpr int costDiagonal = 14;
-            const int dx = std::abs(a->column - b->column);
-            const int dy = std::abs(a->row - b->row);
-            const int mn = std::min(dx, dy);
-            const int mx = std::max(dx, dy);
-            return costDiagonal * mn + costStraight * (mx - mn);
-        };
-    m_StartNode->hScore = octile(m_StartNode, m_DestinationNode);
-    m_StartNode->fScore = m_StartNode->hScore; 
+    m_StartNode->hScore = CostOctile(m_StartNode, m_DestinationNode);
+    m_StartNode->fScore = m_StartNode->hScore;  
 }
 
 void AStar::Step()
@@ -138,7 +128,7 @@ void AStar::SelectLowestCostNode()
 {
     if (m_OpenList.empty()) { m_CurrentNode = nullptr; return; }
 
-    auto it = std::min_element(
+    auto it = std::ranges::min_element(
         m_OpenList.begin(), m_OpenList.end(),
         [](const Node* a, const Node* b) 
         {
@@ -149,36 +139,28 @@ void AStar::SelectLowestCostNode()
 
     m_CurrentNode = (it != m_OpenList.end()) ? *it : nullptr;
 }
-
-void AStar::CalculateNodeCost(Node* from, Node* node)
+int AStar::CostOctile(Node* a, Node* b)
 {
-    constexpr int costStraight = 10, costDiagonal = 14;
+        const int deltaX = std::abs(a->column - b->column);
+        const int deltaY = std::abs(a->row - b->row);
+        const int min = std::min(deltaX, deltaY); 
+        const int max = std::max(deltaX, deltaY);
+        return m_CostDiagonal * min + m_CostStraight * (max - min);
+};
+void AStar::CalculateNodeCost(Node* currentNode, Node* neighborNode)
+{
+	const bool diagonal = currentNode->row != neighborNode->row and currentNode->column != neighborNode->column;
+	const int stepCost = diagonal ? m_CostDiagonal : m_CostStraight;
 
-    auto heuristicOctile = [&](Node* a, Node* b)
-        {
-            const int deltaX = std::abs(a->column - b->column);
-            const int deltaY = std::abs(a->row - b->row);
-            const int min = std::min(deltaX, deltaY);
-            const int max = std::max(deltaX, deltaY); 
-            return costDiagonal * min + costStraight * (max - min); 
-        };
-
-    int stepCost = costStraight;
-    if (from)
-    {
-        const bool diagonal = (from->row != node->row) && (from->column != node->column);
-        stepCost = diagonal ? costDiagonal : costStraight;
-    }
-
-    const int baseG = from ? from->gScore : 0;
+    const int baseG = currentNode->gScore;
     const int tentativeG = baseG >= INT_MAX / 8 ? baseG : baseG + stepCost;
 
-    if (!node->open || tentativeG < node->gScore)
+    if (!neighborNode->open or tentativeG < neighborNode->gScore)
     {
-        node->parent = from;
-        node->gScore = tentativeG;
-        node->hScore = heuristicOctile(node, m_DestinationNode);
-        node->fScore = node->gScore + node->hScore;
+        neighborNode->parent = currentNode; 
+        neighborNode->gScore = tentativeG;
+        neighborNode->hScore = CostOctile(neighborNode, m_DestinationNode);
+        neighborNode->fScore = neighborNode->gScore + neighborNode->hScore; 
     }
 }
 

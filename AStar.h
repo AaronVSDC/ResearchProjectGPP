@@ -23,7 +23,11 @@ private:
     void FindDestinationNode();
     void EvaluateNeighbors();
     void SelectLowestCostNode();
-    void CalculateNodeCost(Node* from, Node* node);
+    int CostOctile(Node* a, Node* b);
+    void CalculateNodeCost(Node* currentNode, Node* neighborNode);
+
+    const int m_CostStraight = 10;
+    const int m_CostDiagonal = 14;
     Grid& m_Grid;
     std::list<Node*> m_OpenList;
     std::list<Node*> m_ClosedList;

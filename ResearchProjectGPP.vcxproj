@@ -137,7 +137,6 @@
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameWinMain.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="JumpPointSearch.cpp" />
     <ClCompile Include="ThetaStar.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -148,7 +147,6 @@
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameWinMain.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="JumpPointSearch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ThetaStar.h" />
   </ItemGroup>

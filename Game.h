@@ -47,16 +47,13 @@ public:
 
 private:
     std::unique_ptr<Grid> m_pGrid;
-    std::unique_ptr<JumpPointSearch> m_pJumpPointSearch;
     std::unique_ptr<AStar> m_pAStar;
     std::unique_ptr<ThetaStar> m_pThetaStar;
 
     bool m_StartAStar = false;
-    bool m_StartJumpPointSearch = false;
     bool m_StartThetaStar = false;
 
     std::unique_ptr<Button> m_pBtnSolveAStar;
-    std::unique_ptr<Button> m_pBtnSolveJumpPointSearch;
     std::unique_ptr<Button> m_pBtnSolveThetaStar;
     std::unique_ptr<Button> m_pBtnReset;
 

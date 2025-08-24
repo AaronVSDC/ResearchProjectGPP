@@ -19,14 +19,14 @@ private:
     void BacktrackStep();
     void FindStartNode();
     void FindDestinationNode();
-    int CostEuclid(const Node* a, const Node* b) const;
+    int CostEuclidian(const Node* a, const Node* b) const;
     bool IsNodePassable(int row, int col) const;
     bool HasLineOfSight(const Node* a, const Node* b) const;
     void EvaluateNeighbors();
     void SelectLowestCostNode();
-    void CalculateNodeCost(Node* currentNode, Node* neighborNode);
+    void CalculateNodeCost(Node* currentNode, Node* expandedNode);
 
-    std::vector<Node*> ReconstructPathChain() const;
+    std::vector<Node*> ReconstructPathChain();
     std::vector<Node*> ExtractWaypoints(const std::vector<Node*>& chain) const;
     void FinalizePathVisualization();
 
@@ -38,7 +38,6 @@ private:
     Node* m_StartNode = nullptr;
     Node* m_DestinationNode = nullptr;
     Node* m_BacktrackNode = nullptr;
-    Node* m_LastWaypoint = nullptr; 
     bool m_IsBacktracking = false;
     std::vector<Node*> m_Waypoints;
 

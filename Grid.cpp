@@ -71,31 +71,31 @@ void Grid::PaintGrid() const
 
 			if (m_Nodes[row][collumn]->open and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
 			{
-				GAME_ENGINE->SetColor(RGB(52, 52, 52));
+				GAME_ENGINE->SetColor(RGB(42, 60, 82));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 			}
 			if (m_Nodes[row][collumn]->closed and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
 			{
-				GAME_ENGINE->SetColor(RGB(32, 32, 32));
+				GAME_ENGINE->SetColor(RGB(26, 36, 52));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 			}
 
 			switch (m_Nodes[row][collumn]->nodeType)
 			{
 			case NodeType::Start:
-				GAME_ENGINE->SetColor(RGB(0, 255, 0));
+				GAME_ENGINE->SetColor(RGB(56, 189, 248));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case NodeType::Destination:
-				GAME_ENGINE->SetColor(RGB(255, 0, 0));
+				GAME_ENGINE->SetColor(RGB(251, 146, 60));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case NodeType::Obstacle:
-				GAME_ENGINE->SetColor(RGB(240, 234, 214));
+				GAME_ENGINE->SetColor(RGB(231, 220, 201));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			case NodeType::Path:
-				GAME_ENGINE->SetColor(RGB(0, 0, 214));
+				GAME_ENGINE->SetColor(RGB(59, 130, 246));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 				break;
 			default:
@@ -105,14 +105,14 @@ void Grid::PaintGrid() const
 
 
 
-			GAME_ENGINE->SetColor(RGB(23, 23, 23)); 
+			GAME_ENGINE->SetColor(RGB(34, 38, 45));
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
 
-	/*		if (m_Nodes[row][collumn]->fScore != INT_MAX)
-			{
-				GAME_ENGINE->SetColor(RGB(255, 255, 255));
+			if (m_Nodes[row][collumn]->fScore != INT_MAX)
+			{ 
+				GAME_ENGINE->SetColor(RGB(48, 52, 60));
 				GAME_ENGINE->DrawString(to_tstring(m_Nodes[row][collumn]->fScore), left + 4, top + 4);
-			}*/
+			}
 
 		}
 	}
@@ -175,6 +175,23 @@ void Grid::Reset()
 			node->gScore = INT_MAX;
 			node->hScore = 0;
 			node->fScore = INT_MAX; 
+			node->parent = nullptr;
+			node->open = false;
+			node->closed = false;
+			if (node->nodeType != NodeType::Obstacle) node->nodeType = NodeType::Empty; 
+		}
+	}
+	DecideStartAndDestination();
+}
+void Grid::ResetWalls()
+{
+	for (auto& row : m_Nodes)
+	{
+		for (auto& node : row)
+		{
+			node->gScore = INT_MAX;
+			node->hScore = 0;
+			node->fScore = INT_MAX;
 			node->parent = nullptr;
 			node->open = false;
 			node->closed = false;

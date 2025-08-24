@@ -32,10 +32,10 @@ void ThetaStar::Paint() const
         const Node* a = m_Waypoints[i - 1];
         const Node* b = m_Waypoints[i];
 
-        int x1 = a->column * cellSize + cellSize / 2 + leftOffset;
-        int y1 = a->row * cellSize + cellSize / 2 + topOffset;
-        int x2 = b->column * cellSize + cellSize / 2 + leftOffset;
-        int y2 = b->row * cellSize + cellSize / 2 + topOffset;
+        const int x1 = a->column * cellSize + cellSize / 2 + leftOffset;
+        const int y1 = a->row * cellSize + cellSize / 2 + topOffset;
+        const int x2 = b->column * cellSize + cellSize / 2 + leftOffset;
+        const int y2 = b->row * cellSize + cellSize / 2 + topOffset;
 
         GAME_ENGINE->DrawLine(x1, y1, x2, y2, 5);
     }
@@ -57,7 +57,7 @@ void ThetaStar::Initialize()
 {
     m_StartNode->gScore = 0;
     m_StartNode->parent = m_StartNode; 
-    m_StartNode->hScore = CostEuclid(m_StartNode, m_DestinationNode);
+    m_StartNode->hScore = CostEuclidian(m_StartNode, m_DestinationNode);
     m_StartNode->fScore = m_StartNode->hScore;
 
 }
@@ -77,7 +77,6 @@ void ThetaStar::Step()
     {
         m_IsBacktracking = true;
         m_BacktrackNode = m_CurrentNode; 
-        m_LastWaypoint = m_DestinationNode; 
         return;
     }
 
@@ -99,17 +98,9 @@ void ThetaStar::BacktrackStep()
 
     if (!m_BacktrackNode->parent)
     {
-        FinalizePathVisualization();
-
         m_IsBacktracking = false;
         m_CurrentNode = nullptr;
         return;
-    }
-
-    if (!HasLineOfSight(m_BacktrackNode->parent, m_LastWaypoint))
-    {
-
-        m_LastWaypoint = m_BacktrackNode;
     }
 
     m_BacktrackNode = m_BacktrackNode->parent;
@@ -147,9 +138,9 @@ void ThetaStar::FindDestinationNode()
         }
     }
 }
-int ThetaStar::CostEuclid(const Node* a, const Node* b) const
+int ThetaStar::CostEuclidian(const Node* a, const Node* b) const
 {
-    const int dx = a->column - b->column;
+    const int dx = a->column - b->column; 
     const int dy = a->row - b->row;
     return static_cast<int>(std::lround(10.0 * std::sqrt(static_cast<double>(dx * dx + dy * dy)))); 
 }
@@ -221,7 +212,7 @@ bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
             const int yn = y + stepY;
 
             // forbid squeezing between two diagonal obstacles
-            if (!IsNodePassable(y, xn) || !IsNodePassable(yn, x))
+            if (!IsNodePassable(y, xn) and !IsNodePassable(yn, x))
                 return false;
 
             x = xn; y = yn;
@@ -238,10 +229,8 @@ bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
 void ThetaStar::EvaluateNeighbors()
 {
     auto& nodes = m_Grid.GetNodes();
-    const int rows = m_Grid.GetAmountOfGridRows();
-    const int cols = m_Grid.GetAmountOfGridCols();
 
-    auto inBounds = [&](int row, int column) { return row >= 0 && row < rows && column >= 0 && column < cols; };
+    auto inBounds = [&](int row, int column) { return row >= 0 and row < m_Grid.GetAmountOfGridRows() and column >= 0 and column < m_Grid.GetAmountOfGridCols(); }; 
     auto isPassable = [&](int row, int column) { if (!inBounds(row, column)) return false; return nodes[row][column]->nodeType != NodeType::Obstacle; };
 
     auto tryNeighbor = [&](int row, int column, bool diagonal)
@@ -299,48 +288,54 @@ void ThetaStar::SelectLowestCostNode()
     m_CurrentNode = (it != m_OpenList.end()) ? *it : nullptr;
 }
 
-void ThetaStar::CalculateNodeCost(Node* currentNode, Node* neighborNode)
+void ThetaStar::CalculateNodeCost(Node* currentNode, Node* expandedNode)
 {
-    const int gViaCurrentNode = currentNode->gScore + CostEuclid(currentNode, neighborNode);
+    const int gViaCurrentNode = currentNode->gScore + CostEuclidian(currentNode, expandedNode);
 
     int bestG = gViaCurrentNode;
     Node* bestParent = currentNode;
 
-    if (currentNode->parent and currentNode->parent != currentNode and HasLineOfSight(currentNode->parent, neighborNode))
+    if (HasLineOfSight(currentNode->parent, expandedNode))
     {
-        const int gViaParent = currentNode->parent->gScore + CostEuclid(currentNode->parent, neighborNode);
+        const int gViaParent = currentNode->parent->gScore + CostEuclidian(currentNode->parent, expandedNode);
         if (gViaParent < bestG)
         {
             bestG = gViaParent;  
             bestParent = currentNode->parent;
         }
     }
-
-    if (!neighborNode->open || bestG < neighborNode->gScore)
+     
+    if (!expandedNode->open or bestG < expandedNode->gScore)
     {
-        neighborNode->parent = bestParent;
-        neighborNode->gScore = bestG; 
-        neighborNode->hScore = CostEuclid(neighborNode, m_DestinationNode);
-        neighborNode->fScore = neighborNode->gScore + neighborNode->hScore;
+        expandedNode->parent = bestParent; 
+        expandedNode->gScore = bestG; 
+        expandedNode->hScore = CostEuclidian(expandedNode, m_DestinationNode);
+        expandedNode->fScore = expandedNode->gScore + expandedNode->hScore;
     }
 
 }
-std::vector<Node*> ThetaStar::ReconstructPathChain() const
+std::vector<Node*> ThetaStar::ReconstructPathChain()
 {
     std::vector<Node*> chain;
-    const Node* n = m_DestinationNode;
-    if (!n) return chain;
-
-    while (n) {
-        chain.push_back(const_cast<Node*>(n));
-        if (n == m_StartNode) break;
-        n = n->parent;
+    while (m_DestinationNode) 
+    {
+        chain.push_back(m_DestinationNode);
+        if (m_DestinationNode == m_StartNode) break; 
+        m_DestinationNode = m_DestinationNode->parent; 
     }
 
-    if (chain.empty() || chain.back() != m_StartNode)
+    if (chain.empty() or chain.back() != m_StartNode)
         return {};          
 
-    std::ranges::reverse(chain.begin(), chain.end());  
+    std::ranges::reverse(chain.begin(), chain.end());
+
+    for (Node* node : chain)
+    { 
+        if (node != m_StartNode && node != m_DestinationNode)
+        {
+            node->nodeType = NodeType::Path;
+        }
+    }
     return chain;
 }
 
@@ -349,7 +344,7 @@ std::vector<Node*> ThetaStar::ExtractWaypoints(const std::vector<Node*>& chain) 
     std::vector<Node*> waypoint;
     if (chain.empty()) return waypoint;
 
-    Node* last = chain.front();    // start
+    Node* last = chain.front(); 
     waypoint.push_back(last); 
 
     Node* previous = last;
@@ -358,7 +353,6 @@ std::vector<Node*> ThetaStar::ExtractWaypoints(const std::vector<Node*>& chain) 
         Node* current = chain[i];
         if (!HasLineOfSight(last, current)) 
         { 
-            // 'prev' is the farthest still visible from 'last'
             if (previous != waypoint.back()) waypoint.push_back(previous);
             last = previous;
         }
@@ -373,14 +367,6 @@ void ThetaStar::FinalizePathVisualization()
     auto chain = ReconstructPathChain();
     auto waypoint = ExtractWaypoints(chain);
     m_Waypoints = std::move(waypoint);  
-
-    for (Node* node : m_Waypoints)
-    {
-        if (node != m_StartNode && node != m_DestinationNode)
-        {
-            node->nodeType = NodeType::Path;
-        }
-    }
 }
 
 

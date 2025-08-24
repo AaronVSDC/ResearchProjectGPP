@@ -38,6 +38,7 @@ public:
 	void MouseMove(int x, int y, WPARAM wParam); 
 
 	void Reset();
+	void ResetWalls();
 
 	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes; }
 	int GetAmountOfGridCols() const { return GRID_COLS; }

@@ -1,5 +1,9 @@
-# GameplayProgramming Research Project
+# GameplayProgramming Research Project: Theta*
+Name: Aaron Van Sichem De Combe 2DAE19
+Github link: https://github.com/Howest-DAE-GD/gameplay-programming-research-AaronVSDC.git
+
 for my research project of the GPP course at DAE I decided to make a demonstration about the Theta* algorithm. In this demo we will look at an example of both the A* algorithm and how the Theta* algorithm differs from A*. 
+
 
 
 ## A* 

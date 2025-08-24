@@ -101,13 +101,13 @@ void AStar::EvaluateNeighbors()
 
             if (diagonal)
             {
-                int cr = m_CurrentNode->row;
-                int cc = m_CurrentNode->column;
-                if (!(isPassable(cr, column) or isPassable(row, cc))) return;
+                if (!(isPassable(m_CurrentNode->row, column) or isPassable(row, m_CurrentNode->column))) 
+                    return;
             }
 
-            Node* neighbor = nodes[row][column];
-            if (neighbor->nodeType == NodeType::Obstacle) return;
+            Node* neighbor = nodes[row][column]; 
+            if (!isPassable(row, column)) 
+                return;
             if (neighbor->closed) return;
 
             CalculateNodeCost(m_CurrentNode, neighbor);
@@ -119,19 +119,16 @@ void AStar::EvaluateNeighbors()
             }
         };
 
-    const int r = m_CurrentNode->row;
-    const int c = m_CurrentNode->column;
+    tryNeighbor(m_CurrentNode->row - 1, m_CurrentNode->column, false); // up
+    tryNeighbor(m_CurrentNode->row + 1, m_CurrentNode->column, false); // down
+    tryNeighbor(m_CurrentNode->row, m_CurrentNode->column + 1, false); // right
+    tryNeighbor(m_CurrentNode->row, m_CurrentNode->column - 1, false); // left
+	tryNeighbor(m_CurrentNode->row - 1, m_CurrentNode->column - 1, true); // upLeft
+    tryNeighbor(m_CurrentNode->row - 1, m_CurrentNode->column + 1, true); // upRight
+    tryNeighbor(m_CurrentNode->row + 1, m_CurrentNode->column + 1, true); // downRight
+    tryNeighbor(m_CurrentNode->row + 1, m_CurrentNode->column - 1, true); // downLeft
 
-    tryNeighbor(r - 1, c, false); // up
-    tryNeighbor(r + 1, c, false); // down
-    tryNeighbor(r, c + 1, false); // right
-    tryNeighbor(r, c - 1, false); // left
-	tryNeighbor(r - 1, c - 1, true); // upLeft
-    tryNeighbor(r - 1, c + 1, true); // upRight
-    tryNeighbor(r + 1, c + 1, true); // downRight
-    tryNeighbor(r + 1, c - 1, true); // downLeft
-
-    m_OpenList.remove(m_CurrentNode);
+    m_OpenList.remove(m_CurrentNode); 
     m_CurrentNode->closed = true;
     m_CurrentNode->open = false;
     m_ClosedList.push_back(m_CurrentNode);
@@ -159,11 +156,11 @@ void AStar::CalculateNodeCost(Node* from, Node* node)
 
     auto heuristicOctile = [&](Node* a, Node* b)
         {
-            const int dx = std::abs(a->column - b->column);
-            const int dy = std::abs(a->row - b->row);
-            const int mn = std::min(dx, dy);
-            const int mx = std::max(dx, dy); 
-            return costDiagonal * mn + costStraight * (mx - mn);
+            const int deltaX = std::abs(a->column - b->column);
+            const int deltaY = std::abs(a->row - b->row);
+            const int min = std::min(deltaX, deltaY);
+            const int max = std::max(deltaX, deltaY); 
+            return costDiagonal * min + costStraight * (max - min); 
         };
 
     int stepCost = costStraight;
@@ -174,7 +171,7 @@ void AStar::CalculateNodeCost(Node* from, Node* node)
     }
 
     const int baseG = from ? from->gScore : 0;
-    const int tentativeG = (baseG >= (INT_MAX / 8)) ? baseG : baseG + stepCost;
+    const int tentativeG = baseG >= INT_MAX / 8 ? baseG : baseG + stepCost;
 
     if (!node->open || tentativeG < node->gScore)
     {

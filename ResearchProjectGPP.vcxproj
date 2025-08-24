@@ -138,6 +138,7 @@
     <ClCompile Include="GameWinMain.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="JumpPointSearch.cpp" />
+    <ClCompile Include="ThetaStar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractGame.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Grid.h" />
     <ClInclude Include="JumpPointSearch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ThetaStar.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -116,19 +116,23 @@ void Grid::PaintGrid() const
 
 void Grid::FillRandomWalls()
 {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-	const float wallChance{ 0.3f };
+	if (m_Nodes.empty() || m_Nodes[0].empty()) return;
 
-	for (auto& row : m_Nodes)
+	const int rows = static_cast<int>(m_Nodes.size());
+	const int cols = static_cast<int>(m_Nodes[0].size());
+
+	const int centerX = cols / 2;  
+	const int thickness = 1;            
+	const int margin = max(1, rows / 10); 
+
+	for (int dx = 0; dx < thickness; ++dx)
 	{
-		for (auto& node : row)
+		int x = std::clamp(centerX + dx - thickness / 2, 0, cols - 1);
+		for (int y = margin; y < rows - margin; ++y)
 		{
-			if (node->nodeType == NodeType::Empty && dist(gen) < wallChance)
-			{
+			auto* node = m_Nodes[y][x];
+			if (node && node->nodeType == NodeType::Empty)
 				node->nodeType = NodeType::Obstacle;
-			}
 		}
 	}
 }

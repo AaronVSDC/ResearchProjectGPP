@@ -1,6 +1,8 @@
 #include "JumpPointSearch.h"
 #include <algorithm>
 #include <cmath>
+
+#include "GameEngine.h"
 #undef min
 #undef max 
 void JumpPointSearch::Start()
@@ -14,6 +16,43 @@ void JumpPointSearch::Tick()
 {
     Step();
 }
+void JumpPointSearch::Paint() const
+{
+    const int cellSize = m_Grid.GetCellSize();
+    const int leftOffset = m_Grid.GetLeftOffset();
+    const int topOffset = m_Grid.GetTopOffset();
+
+    for (const auto& arrow : m_JumpArrows)
+    {
+        int x1 = arrow.from->column * cellSize + cellSize / 2 + leftOffset;
+        int y1 = arrow.from->row * cellSize + cellSize / 2 + topOffset;
+        int x2 = arrow.to->column * cellSize + cellSize / 2 + leftOffset;
+        int y2 = arrow.to->row * cellSize + cellSize / 2 + topOffset;
+
+        GAME_ENGINE->SetColor(RGB(50, 200, 85));
+        GAME_ENGINE->DrawLine(x1, y1, x2, y2);
+
+        float dx = static_cast<float>(x2 - x1);
+        float dy = static_cast<float>(y2 - y1);
+        float length = std::sqrt(dx * dx + dy * dy);
+        if (length == 0)
+            continue;
+        float ux = dx / length;
+        float uy = dy / length;
+        float arrowSize = static_cast<float>(cellSize) / 3.0f;
+        float baseX = static_cast<float>(x2) - ux * arrowSize;
+        float baseY = static_cast<float>(y2) - uy * arrowSize;
+        float perpX = -uy;
+        float perpY = ux;
+
+        POINT pts[3];
+        pts[0] = { x2, y2 };
+        pts[1] = { static_cast<LONG>(baseX + perpX * arrowSize / 2.f), static_cast<LONG>(baseY + perpY * arrowSize / 2.f) };
+        pts[2] = { static_cast<LONG>(baseX - perpX * arrowSize / 2.f), static_cast<LONG>(baseY - perpY * arrowSize / 2.f) };
+        GAME_ENGINE->FillPolygon(pts, 3, true);
+    }
+}
+
 
 void JumpPointSearch::Reset()
 {
@@ -22,8 +61,7 @@ void JumpPointSearch::Reset()
     m_CurrentNode = nullptr;
     m_StartNode = nullptr;
     m_DestinationNode = nullptr;
-    m_BacktrackNode = nullptr;
-    m_IsBacktracking = false;
+    m_JumpArrows.clear();
 }
 
 void JumpPointSearch::Initialize()
@@ -54,17 +92,10 @@ void JumpPointSearch::Step()
 {
     if (!m_CurrentNode)
         return;
-
-    if (m_IsBacktracking)
-    {
-        BacktrackStep();
-        return;
-    }
-
     if (m_CurrentNode == m_DestinationNode)
     {
-        m_IsBacktracking = true;
-        m_BacktrackNode = m_CurrentNode;
+        BuildFinalPath();
+        m_CurrentNode = nullptr;
         return;
     }
 
@@ -72,22 +103,13 @@ void JumpPointSearch::Step()
     SelectLowestCostNode();
 }
 
-void JumpPointSearch::BacktrackStep()
+void JumpPointSearch::BuildFinalPath()
 {
-    if (!m_BacktrackNode)
+    if (!m_DestinationNode)
         return;
-
-    if (m_BacktrackNode->parent && m_BacktrackNode->parent != m_StartNode)
+    for (Node* node = m_DestinationNode->parent; node && node != m_StartNode; node = node->parent)
     {
-        m_BacktrackNode->parent->nodeType = NodeType::Path;
-    }
-
-    m_BacktrackNode = m_BacktrackNode->parent;
-
-    if (!m_BacktrackNode || m_BacktrackNode == m_StartNode)
-    {
-        m_IsBacktracking = false;
-        m_CurrentNode = nullptr;
+        node->nodeType = NodeType::Path; 
     }
 }
 
@@ -140,6 +162,8 @@ void JumpPointSearch::IdentifySuccessors()
 
         if (jumpNode != nullptr && !jumpNode->closed)
         {
+            m_JumpArrows.push_back({ m_CurrentNode, jumpNode });
+
             CalculateNodeCost(m_CurrentNode, jumpNode);
 
             if (!jumpNode->open)
@@ -178,20 +202,21 @@ std::vector<std::pair<int, int>> JumpPointSearch::FindNeighbors(Node* node)
 
     Node* parentNode = node->parent;
 
-    if (parentNode == nullptr)
+    if (parentNode == nullptr) 
     {
-        for (int rowOffset = -1; rowOffset <= 1; ++rowOffset)
-        {
-            for (int columnOffset = -1; columnOffset <= 1; ++columnOffset)
-            {
-                if (rowOffset == 0 && columnOffset == 0)
-                    continue;
-                int newRow = node->row + rowOffset;
-                int newColumn = node->column + columnOffset;
-                if (IsPassable(newRow, newColumn))
-                    neighborOffsets.emplace_back(rowOffset, columnOffset);
+        for (int dr = -1; dr <= 1; ++dr)
+            for (int dc = -1; dc <= 1; ++dc) {
+                if (dr == 0 && dc == 0) continue;
+                int nr = node->row + dr, nc = node->column + dc;
+                if (!IsPassable(nr, nc)) continue;
+
+                // FIX: forbid diagonals through corners
+                if (dr != 0 && dc != 0) {
+                    if (!IsPassable(node->row + dr, node->column)) continue;
+                    if (!IsPassable(node->row, node->column + dc)) continue;
+                }
+                neighborOffsets.emplace_back(dr, dc);
             }
-        }
         return neighborOffsets;
     }
 

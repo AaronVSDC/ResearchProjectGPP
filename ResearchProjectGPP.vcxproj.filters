@@ -36,6 +36,9 @@
     <ClCompile Include="AStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThetaStar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractGame.h">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="AStar.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThetaStar.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,9 +37,12 @@ public:
 	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam); 
 	void Reset();
 
-	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes;  }
-	int GetAmountOfGridCols() const { return GRID_COLS;  }
-	int GetAmountOfGridRows() const { return GRID_ROWS;  }
+	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes; }
+	int GetAmountOfGridCols() const { return GRID_COLS; }
+	int GetAmountOfGridRows() const { return GRID_ROWS; }
+	int GetCellSize() const { return CELL_SIZE; }
+	int GetLeftOffset() const { return LEFT_OFFSET; } 
+	int GetTopOffset() const { return TOP_OFFSET; }
 
 private:
 

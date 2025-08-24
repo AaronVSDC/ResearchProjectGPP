@@ -5,18 +5,19 @@
 
 class JumpPointSearch final
 {
-public: 
+public:
     JumpPointSearch(Grid& grid)
         :m_Grid{ grid } {}
 
     void Start();
     void Tick();
     void Reset();
+    void Paint() const;
 
 private:
     void Initialize();
     void Step();
-    void BacktrackStep();
+    void BuildFinalPath(); 
     void FindStartNode();
     void FindDestinationNode();
     void IdentifySuccessors();
@@ -32,6 +33,11 @@ private:
     Node* m_CurrentNode = nullptr;
     Node* m_StartNode = nullptr;
     Node* m_DestinationNode = nullptr;
-    Node* m_BacktrackNode = nullptr;
-    bool m_IsBacktracking = false;
+
+    struct Arrow
+    {
+        Node* from{};
+        Node* to{};
+    };
+    std::vector<Arrow> m_JumpArrows;
 };

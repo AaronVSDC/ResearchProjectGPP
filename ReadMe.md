@@ -4,7 +4,7 @@ for my research project of the GPP course at DAE I decided to make a demonstrati
 
 ## A* 
 
-<img src="Docs/AStar.gif" width="400">
+<img src="Docs/AStar.gif">
 
 
 The A* algorithm is a very popular algorithm that finds the shortest path in a given grid (like dijkstra) but uses heuristic as an optimization. 

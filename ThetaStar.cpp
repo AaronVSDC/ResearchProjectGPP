@@ -167,66 +167,73 @@ bool ThetaStar::IsNodePassable(int row, int col) const
 
 bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
 {
-    //using the integer bresenham with corner checks algorithm for light of sight checks (from what ive checked a very common algorithm to do this)
-    //note: this rejects lines that would squeeze between two obstacle nodes at a corner
-    int x0 = a->column, y0 = a->row;
-    const int x1 = b->column, y1 = b->row;
+    // start/end at cell centers
+    double x0 = a->column + 0.5;
+    double y0 = a->row + 0.5;
+    double x1 = b->column + 0.5;
+    double y1 = b->row + 0.5;
 
-    int deltaX = std::abs(x1 - x0);
-    int deltaY = std::abs(y1 - y0);
-    int stepX = (x1 < x0) ? -1 : 1;
-    int stepY = (y1 < y0) ? -1 : 1;
+    // current cell (integer indices)
+    int x = a->column;
+    int y = a->row;
 
-    int f = 0;
+    const int tx = b->column;
+    const int ty = b->row;
 
-    if (deltaX >= deltaY)
+    const double dx = x1 - x0;
+    const double dy = y1 - y0;
+
+    const int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
+    const int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
+
+    // how far (in param t) to cross one grid line in X/Y
+    const double tDeltaX = (stepX != 0) ? 1.0 / std::abs(dx) : std::numeric_limits<double>::infinity();
+    const double tDeltaY = (stepY != 0) ? 1.0 / std::abs(dy) : std::numeric_limits<double>::infinity();
+
+    // first vertical/horizontal grid line ahead from the start point
+    const double nextV = (stepX > 0) ? (std::floor(x0) + 1.0) : (std::ceil(x0) - 1.0);
+    const double nextH = (stepY > 0) ? (std::floor(y0) + 1.0) : (std::ceil(y0) - 1.0);
+
+    // param t when we hit the first grid line in X/Y
+    double tMaxX = (stepX != 0) ? std::abs(nextV - x0) * tDeltaX : std::numeric_limits<double>::infinity();
+    double tMaxY = (stepY != 0) ? std::abs(nextH - y0) * tDeltaY : std::numeric_limits<double>::infinity();
+
+    // (optional) ensure start/goal themselves are walkable
+    if (!IsNodePassable(y, x) || !IsNodePassable(ty, tx))
+        return false;
+
+    // traverse cells until we reach the target cell
+    while (x != tx || y != ty)
     {
-        while (x0 != x1)
-        {
-            f += deltaY;
-            if (f >= deltaX)
-            {
-                if (!IsNodePassable(y0 + ((stepY - 1) / 2), x0 + ((stepX - 1) / 2)))
-                    return false;
-                y0 += stepY;
-                f -= deltaX;
-            }
-            if (f != 0 && !IsNodePassable(y0 + ((stepY - 1) / 2), x0 + ((stepX - 1) / 2)))
+        if (tMaxX < tMaxY) {
+            // cross a vertical grid line: move to cell (y, x + stepX)
+            x += stepX;
+            tMaxX += tDeltaX;
+            if (!IsNodePassable(y, x)) return false;
+        }
+        else if (tMaxY < tMaxX) {
+            // cross a horizontal grid line: move to cell (y + stepY, x)
+            y += stepY;
+            tMaxY += tDeltaY;
+            if (!IsNodePassable(y, x)) return false;
+        }
+        else {
+            // exactly through a corner: must be able to pass BOTH side-adjacent cells
+            const int xn = x + stepX;
+            const int yn = y + stepY;
+
+            // forbid squeezing between two diagonal obstacles
+            if (!IsNodePassable(y, xn) || !IsNodePassable(yn, x))
                 return false;
 
-            if (deltaY == 0 &&
-                (!IsNodePassable(y0, x0 + ((stepX - 1) / 2)) ||
-                    !IsNodePassable(y0 - 1, x0 + ((stepX - 1) / 2))))
-                return false;
+            x = xn; y = yn;
+            tMaxX += tDeltaX;
+            tMaxY += tDeltaY;
 
-            x0 += stepX;
-            if (!IsNodePassable(y0, x0)) return false;
+            if (!IsNodePassable(y, x)) return false;
         }
     }
-    else
-    {
-        while (y0 != y1)
-        {
-            f += deltaX;
-            if (f >= deltaY)
-            {
-                if (!IsNodePassable(y0 + ((stepY - 1) / 2), x0 + ((stepX - 1) / 2)))
-                    return false;
-                x0 += stepX;
-                f -= deltaY;
-            }
-            if (f != 0 && !IsNodePassable(y0 + ((stepY - 1) / 2), x0 + ((stepX - 1) / 2)))
-                return false;
 
-            if (deltaX == 0 &&
-                (!IsNodePassable(y0 + ((stepY - 1) / 2), x0) ||
-                    !IsNodePassable(y0 + ((stepY - 1) / 2), x0 - 1)))
-                return false;
-
-            y0 += stepY;
-            if (!IsNodePassable(y0, x0)) return false;
-        }
-    }
     return true;
 }
 
@@ -325,14 +332,17 @@ std::vector<Node*> ThetaStar::ReconstructPathChain() const
     std::vector<Node*> chain;
     const Node* n = m_DestinationNode;
     if (!n) return chain;
+
     while (n) {
         chain.push_back(const_cast<Node*>(n));
         if (n == m_StartNode) break;
         n = n->parent;
     }
-    //std::reverse(chain.begin(), chain.end());
-    //if (chain.empty() || chain.front() != m_StartNode || chain.back() != m_DestinationNode)
-    //    chain.clear();
+
+    if (chain.empty() || chain.back() != m_StartNode)
+        return {};          
+
+    std::ranges::reverse(chain.begin(), chain.end());  
     return chain;
 }
 

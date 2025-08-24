@@ -67,6 +67,7 @@ void Game::Paint(RECT rect) const
 {
     GAME_ENGINE->FillWindowRect(RGB(18, 18, 18));
     m_pGrid->Paint();
+    m_pThetaStar->Paint(); 
 }
 
 void Game::Tick()

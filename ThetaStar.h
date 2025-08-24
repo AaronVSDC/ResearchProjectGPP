@@ -10,6 +10,7 @@ public:
 
     void Start();
     void Tick();
+    void Paint() const;
     void Reset();
 
 private:
@@ -26,8 +27,8 @@ private:
     void CalculateNodeCost(Node* currentNode, Node* neighborNode);
 
     std::vector<Node*> ReconstructPathChain() const;
-
     std::vector<Node*> ExtractWaypoints(const std::vector<Node*>& chain) const;
+    void FinalizePathVisualization();
 
     Grid& m_Grid;
     std::list<Node*> m_OpenList;
@@ -37,6 +38,8 @@ private:
     Node* m_StartNode = nullptr;
     Node* m_DestinationNode = nullptr;
     Node* m_BacktrackNode = nullptr;
-    Node* m_LastWaypoint = nullptr;
+    Node* m_LastWaypoint = nullptr; 
     bool m_IsBacktracking = false;
+    std::vector<Node*> m_Waypoints;
+
 };

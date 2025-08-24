@@ -138,7 +138,6 @@ void Grid::FillRandomWalls()
 }
 void Grid::DecideStartAndDestination()
 {
-	//keep in mind indices start from 0
 	std::size_t rowStart = GRID_ROWS / 2 - 1;
 	std::size_t collumnStart = 4;
 

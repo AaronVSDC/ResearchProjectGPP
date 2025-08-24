@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "GameEngine.h"
+
 #undef min
 #undef max
 
@@ -16,7 +18,31 @@ void ThetaStar::Tick()
 {
     Step();
 }
+void ThetaStar::Paint() const
+{
+    if (m_Waypoints.size() < 2)
+        return;
 
+    const int cellSize = m_Grid.GetCellSize();
+    const int leftOffset = m_Grid.GetLeftOffset();
+    const int topOffset = m_Grid.GetTopOffset();
+
+    GAME_ENGINE->SetColor(RGB(0, 0, 214));
+
+    for (size_t i = 1; i < m_Waypoints.size(); ++i)
+    {
+        const Node* a = m_Waypoints[i - 1];
+        const Node* b = m_Waypoints[i];
+
+        int x1 = a->column * cellSize + cellSize / 2 + leftOffset;
+        int y1 = a->row * cellSize + cellSize / 2 + topOffset;
+        int x2 = b->column * cellSize + cellSize / 2 + leftOffset;
+        int y2 = b->row * cellSize + cellSize / 2 + topOffset;
+
+        GAME_ENGINE->SetWidth(4); 
+        GAME_ENGINE->DrawLine(x1, y1, x2, y2);
+    }
+}
 void ThetaStar::Reset()
 {
     m_OpenList.clear();
@@ -26,6 +52,8 @@ void ThetaStar::Reset()
     m_DestinationNode = nullptr;
     m_BacktrackNode = nullptr;
     m_IsBacktracking = false;
+    m_Waypoints.clear();
+
 }
 
 void ThetaStar::Initialize()
@@ -337,6 +365,8 @@ void ThetaStar::FinalizePathVisualization()
 {
     auto chain = ReconstructPathChain();
     auto waypoint = ExtractWaypoints(chain);
+    m_Waypoints = std::move(waypoint);  
+
 }
 
 

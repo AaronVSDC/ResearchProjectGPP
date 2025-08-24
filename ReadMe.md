@@ -151,7 +151,7 @@ What you might notice with this approach, is that while A* always finds the shor
 ## Theta* 
 <img src="Docs/ThetaStar.gif">
 
-The Theta* variant is very much alike the A*. The one big difference is that it does an extra step -> the visibility check. 
+The Theta* variant is very much alike the A*. The one big difference is that it does an extra step -> the visibility check. It also looks like a more realistic path the npc might take.
 ```cpp
 void ThetaStar::Step()
 {

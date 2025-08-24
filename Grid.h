@@ -34,7 +34,9 @@ public:
 	void Start(); 
 
 	void Paint() const;
-	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam); 
+	void MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam);
+	void MouseMove(int x, int y, WPARAM wParam); 
+
 	void Reset();
 
 	std::vector<std::vector<Node*>>& GetNodes() { return m_Nodes; }

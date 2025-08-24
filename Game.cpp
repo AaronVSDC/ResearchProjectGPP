@@ -91,22 +91,12 @@ void Game::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wPar
 
 void Game::MouseWheelAction(int x, int y, int distance, WPARAM wParam)
 {
-    // Insert code for a mouse wheel action
 }
 
 void Game::MouseMove(int x, int y, WPARAM wParam)
 {
-    // Insert code that needs to execute when the mouse pointer moves across the game window
+    m_pGrid->MouseMove(x, y, wParam);
 
-    /* Example:
-    if ( x > 261 && x < 261 + 117 ) // check if mouse position is within x coordinates of choice
-    {
-        if ( y > 182 && y < 182 + 33 ) // check if mouse position also is within y coordinates of choice
-        {
-            GAME_ENGINE->MessageBox("Mouse move.");
-        }
-    }
-    */
 }
 
 void Game::CheckKeyboard()

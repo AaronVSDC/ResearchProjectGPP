@@ -28,29 +28,33 @@ void Grid::Paint() const
 
 void Grid::MouseButtonAction(bool isLeft, bool isDown, int x, int y, WPARAM wParam)
 {
-	if (isLeft and isDown)
+	if (isLeft)
+		m_IsMousePressedLeft = isDown;
+	else
+		m_IsMousePressedRight = isDown;
+
+	if (isDown)
 	{
-		int row{};
-		int collumn{}; 
-		if (PointToGrid(x, y, row, collumn))
-		{
-			if (m_Nodes[row][collumn]->nodeType != NodeType::Start and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
-				m_Nodes[row][collumn]->nodeType = NodeType::Obstacle;
-		}
-	}
-	if (!isLeft and isDown)
-	{
-		int row{};
-		int collumn{};
-		if (PointToGrid(x, y, row, collumn))
-		{
-			if (m_Nodes[row][collumn]->nodeType == NodeType::Obstacle)
-			{
-				m_Nodes[row][collumn]->nodeType = NodeType::Empty; 
-			}
-		}
+		MouseMove(x, y, wParam);
 	}
 
+}
+void Grid::MouseMove(int x, int y, WPARAM wParam)
+{
+	int row{};
+	int collumn{};
+	if (!PointToGrid(x, y, row, collumn)) return;
+
+	if (m_IsMousePressedLeft)
+	{
+		if (m_Nodes[row][collumn]->nodeType != NodeType::Start && m_Nodes[row][collumn]->nodeType != NodeType::Destination)
+			m_Nodes[row][collumn]->nodeType = NodeType::Obstacle;
+	}
+	else if (m_IsMousePressedRight)
+	{
+		if (m_Nodes[row][collumn]->nodeType == NodeType::Obstacle)
+			m_Nodes[row][collumn]->nodeType = NodeType::Empty;
+	}
 }
 
 void Grid::PaintGrid() const
@@ -67,12 +71,12 @@ void Grid::PaintGrid() const
 
 			if (m_Nodes[row][collumn]->open and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
 			{
-				GAME_ENGINE->SetColor(RGB(0, 200, 200));
+				GAME_ENGINE->SetColor(RGB(52, 52, 52));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 			}
 			if (m_Nodes[row][collumn]->closed and m_Nodes[row][collumn]->nodeType != NodeType::Destination)
 			{
-				GAME_ENGINE->SetColor(RGB(200, 200, 0));
+				GAME_ENGINE->SetColor(RGB(32, 32, 32));
 				GAME_ENGINE->FillRect(left, top, right, bottom);
 			}
 
@@ -104,11 +108,11 @@ void Grid::PaintGrid() const
 			GAME_ENGINE->SetColor(RGB(23, 23, 23)); 
 			GAME_ENGINE->DrawRect(left, top, right, bottom);
 
-			if (m_Nodes[row][collumn]->fScore != INT_MAX)
+	/*		if (m_Nodes[row][collumn]->fScore != INT_MAX)
 			{
 				GAME_ENGINE->SetColor(RGB(255, 255, 255));
 				GAME_ENGINE->DrawString(to_tstring(m_Nodes[row][collumn]->fScore), left + 4, top + 4);
-			}
+			}*/
 
 		}
 	}

@@ -156,13 +156,11 @@ bool ThetaStar::IsNodePassable(int row, int col) const
 
 bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
 {
-    // start/end at cell centers
     double x0 = a->column + 0.5;
     double y0 = a->row + 0.5;
     double x1 = b->column + 0.5;
     double y1 = b->row + 0.5;
 
-    // current cell (integer indices)
     int x = a->column;
     int y = a->row;
 
@@ -175,43 +173,35 @@ bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
     const int stepX = (dx > 0) ? 1 : (dx < 0) ? -1 : 0;
     const int stepY = (dy > 0) ? 1 : (dy < 0) ? -1 : 0;
 
-    // how far (in param t) to cross one grid line in X/Y
     const double tDeltaX = (stepX != 0) ? 1.0 / std::abs(dx) : std::numeric_limits<double>::infinity();
     const double tDeltaY = (stepY != 0) ? 1.0 / std::abs(dy) : std::numeric_limits<double>::infinity();
 
-    // first vertical/horizontal grid line ahead from the start point
     const double nextV = (stepX > 0) ? (std::floor(x0) + 1.0) : (std::ceil(x0) - 1.0);
     const double nextH = (stepY > 0) ? (std::floor(y0) + 1.0) : (std::ceil(y0) - 1.0);
 
-    // param t when we hit the first grid line in X/Y
     double tMaxX = (stepX != 0) ? std::abs(nextV - x0) * tDeltaX : std::numeric_limits<double>::infinity();
     double tMaxY = (stepY != 0) ? std::abs(nextH - y0) * tDeltaY : std::numeric_limits<double>::infinity();
 
-    // (optional) ensure start/goal themselves are walkable
     if (!IsNodePassable(y, x) || !IsNodePassable(ty, tx))
         return false;
 
-    // traverse cells until we reach the target cell
     while (x != tx || y != ty)
     {
-        if (tMaxX < tMaxY) {
-            // cross a vertical grid line: move to cell (y, x + stepX)
+        if (tMaxX < tMaxY) 
+        {
             x += stepX;
             tMaxX += tDeltaX;
             if (!IsNodePassable(y, x)) return false;
         }
         else if (tMaxY < tMaxX) {
-            // cross a horizontal grid line: move to cell (y + stepY, x)
             y += stepY;
             tMaxY += tDeltaY;
             if (!IsNodePassable(y, x)) return false;
         }
         else {
-            // exactly through a corner: must be able to pass BOTH side-adjacent cells
             const int xn = x + stepX;
             const int yn = y + stepY;
 
-            // forbid squeezing between two diagonal obstacles
             if (!IsNodePassable(y, xn) and !IsNodePassable(yn, x))
                 return false;
 
@@ -222,7 +212,6 @@ bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
             if (!IsNodePassable(y, x)) return false;
         }
     }
-
     return true;
 }
 

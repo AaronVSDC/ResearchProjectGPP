@@ -20,14 +20,12 @@ void ThetaStar::Tick()
 }
 void ThetaStar::Paint() const
 {
-    if (m_Waypoints.size() < 2)
-        return;
 
     const int cellSize = m_Grid.GetCellSize();
     const int leftOffset = m_Grid.GetLeftOffset();
     const int topOffset = m_Grid.GetTopOffset();
 
-    GAME_ENGINE->SetColor(RGB(0, 0, 214));
+    GAME_ENGINE->SetColor(RGB(255, 255, 214));
 
     for (size_t i = 1; i < m_Waypoints.size(); ++i)
     {
@@ -39,7 +37,6 @@ void ThetaStar::Paint() const
         int x2 = b->column * cellSize + cellSize / 2 + leftOffset;
         int y2 = b->row * cellSize + cellSize / 2 + topOffset;
 
-        GAME_ENGINE->SetWidth(4); 
         GAME_ENGINE->DrawLine(x1, y1, x2, y2);
     }
 }
@@ -102,6 +99,8 @@ void ThetaStar::BacktrackStep()
 
     if (!m_BacktrackNode->parent)
     {
+        FinalizePathVisualization();
+
         m_IsBacktracking = false;
         m_CurrentNode = nullptr;
         return;
@@ -331,9 +330,9 @@ std::vector<Node*> ThetaStar::ReconstructPathChain() const
         if (n == m_StartNode) break;
         n = n->parent;
     }
-    std::reverse(chain.begin(), chain.end());
-    if (chain.empty() || chain.front() != m_StartNode || chain.back() != m_DestinationNode)
-        chain.clear();
+    //std::reverse(chain.begin(), chain.end());
+    //if (chain.empty() || chain.front() != m_StartNode || chain.back() != m_DestinationNode)
+    //    chain.clear();
     return chain;
 }
 

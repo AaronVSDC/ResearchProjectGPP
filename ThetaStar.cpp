@@ -66,33 +66,28 @@ void ThetaStar::BacktrackStep()
 
     if (m_BacktrackNode == m_StartNode)
     {
-        // optionally mark start as a waypoint, or not
+        FinalizePathVisualization(); 
         m_IsBacktracking = false;
         m_CurrentNode = nullptr;
         return;
     }
 
-    Node* n = m_BacktrackNode;
-    Node* p = n->parent;
-    if (!p)
+    if (!m_BacktrackNode->parent)
     {
         m_IsBacktracking = false;
         m_CurrentNode = nullptr;
         return;
     }
 
-    // If the parent can't see the last chosen waypoint,
-    // 'n' is the next waypoint to keep.
-    if (!HasLineOfSight(p, m_LastWaypoint))
+    if (!HasLineOfSight(m_BacktrackNode->parent, m_LastWaypoint))
     {
-        if (n != m_StartNode && n != m_DestinationNode)
-            n->nodeType = NodeType::Path; // mark the waypoint node
+        if (m_BacktrackNode != m_StartNode and m_BacktrackNode != m_DestinationNode)
+            m_BacktrackNode->nodeType = NodeType::Path;
 
-        m_LastWaypoint = n;
+        m_LastWaypoint = m_BacktrackNode;
     }
 
-    // move up the chain
-    m_BacktrackNode = p;
+    m_BacktrackNode = m_BacktrackNode->parent;
 }
 
 void ThetaStar::FindStartNode()
@@ -143,7 +138,7 @@ bool ThetaStar::IsNodePassable(int row, int col) const
     return nodes[row][col]->nodeType != NodeType::Obstacle;
 }
 
-bool ThetaStar::HasLineOfSight(const Node* a, const Node* b)
+bool ThetaStar::HasLineOfSight(const Node* a, const Node* b) const
 {
     //using the integer bresenham with corner checks algorithm for light of sight checks (from what ive checked a very common algorithm to do this)
     //note: this rejects lines that would squeeze between two obstacle nodes at a corner
@@ -297,6 +292,51 @@ void ThetaStar::CalculateNodeCost(Node* currentNode, Node* neighborNode)
         neighborNode->fScore = neighborNode->gScore + neighborNode->hScore;
     }
 
+}
+std::vector<Node*> ThetaStar::ReconstructPathChain() const
+{
+    std::vector<Node*> chain;
+    const Node* n = m_DestinationNode;
+    if (!n) return chain;
+    while (n) {
+        chain.push_back(const_cast<Node*>(n));
+        if (n == m_StartNode) break;
+        n = n->parent;
+    }
+    std::reverse(chain.begin(), chain.end());
+    if (chain.empty() || chain.front() != m_StartNode || chain.back() != m_DestinationNode)
+        chain.clear();
+    return chain;
+}
+
+std::vector<Node*> ThetaStar::ExtractWaypoints(const std::vector<Node*>& chain) const
+{
+    std::vector<Node*> waypoint;
+    if (chain.empty()) return waypoint;
+
+    Node* last = chain.front();    // start
+    waypoint.push_back(last); 
+
+    Node* previous = last;
+    for (size_t i = 1; i < chain.size(); ++i)
+    {
+        Node* current = chain[i];
+        if (!HasLineOfSight(last, current)) 
+        { 
+            // 'prev' is the farthest still visible from 'last'
+            if (previous != waypoint.back()) waypoint.push_back(previous);
+            last = previous;
+        }
+        previous = current;
+    }
+    if (waypoint.back() != chain.back()) waypoint.push_back(chain.back()); 
+    return waypoint;
+}
+
+void ThetaStar::FinalizePathVisualization()
+{
+    auto chain = ReconstructPathChain();
+    auto waypoint = ExtractWaypoints(chain);
 }
 
 

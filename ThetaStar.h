@@ -20,10 +20,14 @@ private:
     void FindDestinationNode();
     int CostEuclid(const Node* a, const Node* b) const;
     bool IsNodePassable(int row, int col) const;
-    bool HasLineOfSight(const Node* a, const Node* b);
+    bool HasLineOfSight(const Node* a, const Node* b) const;
     void EvaluateNeighbors();
     void SelectLowestCostNode();
     void CalculateNodeCost(Node* currentNode, Node* neighborNode);
+
+    std::vector<Node*> ReconstructPathChain() const;
+
+    std::vector<Node*> ExtractWaypoints(const std::vector<Node*>& chain) const;
 
     Grid& m_Grid;
     std::list<Node*> m_OpenList;

@@ -2,7 +2,7 @@
 Name: Aaron Van Sichem De Combe 2DAE19
 
 
-for my research project of the GPP course at DAE I decided to make a demonstration about the Theta* algorithm. In this demo we will look at an example of both the A* algorithm and how the Theta* algorithm differs from A*. 
+for my research project of the GPP course at DAE I decided to make a demonstration about the Theta* algorithm. In this demo we will look at an example of both the A* algorithm and how the Theta* algorithm differs from A*. This project was made with the small Game Engine made by Kevin Hoefman. 
 
 
 
